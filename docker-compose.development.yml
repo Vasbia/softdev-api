@@ -1,4 +1,16 @@
 services:
+  springboot:
+    build:
+      context: .
+      dockerfile: Dockerfile.development
+    container_name: springboot
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+      
   db:
     image: postgres
     container_name: postgres
