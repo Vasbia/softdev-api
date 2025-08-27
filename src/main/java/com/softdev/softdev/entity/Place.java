@@ -27,7 +27,7 @@ public class Place {
 
     @ManyToOne
     @JoinColumn(name = "geolocation_id")
-    private GeoLocation geoLocation;
+    private Geolocation geoLocation;
 
     @ManyToOne
     @JoinColumn(name = "bus_stop_id")

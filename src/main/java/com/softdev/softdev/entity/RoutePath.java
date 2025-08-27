@@ -24,7 +24,7 @@ public class RoutePath {
 
     @ManyToOne
     @JoinColumn(name = "geolocation_id")
-    private GeoLocation geoLocation;
+    private Geolocation geoLocation;
 
     @ManyToOne
     @JoinColumn(name = "route_id")
