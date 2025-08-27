@@ -30,6 +30,6 @@ public class Place {
     private GeoLocation geoLocation;
 
     @ManyToOne
-    @JoinColumn(name = "stop_id")
-    private BusStop stop;
+    @JoinColumn(name = "bus_stop_id")
+    private BusStop busStop;
 }
