@@ -1,15 +1,9 @@
 package com.softdev.softdev.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.softdev.softdev.repository.GeolocationRepository;
 
 @Service
 public class GeolocationService {
-    @Autowired
-    private GeolocationRepository geolocationRepository;
-
     public double haversine(double lat1, double lon1, double lat2, double lon2) {
         final int R = 6371000;
 
