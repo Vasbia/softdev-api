@@ -31,4 +31,8 @@ public class User {
 
     @Column(name = "lname")
     private String lname;
+
+    public void setLname(String familyName) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

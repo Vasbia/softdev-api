@@ -5,35 +5,30 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/",                 // หน้าเปิดเล่น
-                    "/auth/login",       // จุดเริ่ม login แบบ custom
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**"
-                ).permitAll()
-                .anyRequest().authenticated()
+            .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/api/user/**").authenticated()
+                .anyRequest().permitAll()
             )
-            // ใช้ OAuth2 Login และกำหนด custom login page = /auth/login
             .oauth2Login(oauth -> oauth
-                .loginPage("/auth/login")
-                .defaultSuccessUrl("/", true) // หลัง login สำเร็จ ให้กลับหน้า /
+                .loginPage("/oauth2/authorization/google")
+                .defaultSuccessUrl("/api/user/info", true)
             )
-            .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/")
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(
+                    new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/google")
+                )
             )
-            // ปรับตาม use case: ถ้าเป็น pure REST อาจต้อง disable
-            .csrf(csrf -> csrf.disable());
-
+            .csrf(csrf -> csrf.disable()); //easy for testing, don't use in production
+            
         return http.build();
     }
 }
