@@ -5,6 +5,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import com.softdev.softdev.dto.User.UserDTO;
 import com.softdev.softdev.entity.User;
 import com.softdev.softdev.repository.UserRepository;
 
@@ -19,6 +20,14 @@ public class UserService {
     }
 
     public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public User getCurrentUser(@AuthenticationPrincipal OAuth2User principal) {
+        if(principal == null) {
+            return null;
+        }
+        String email = principal.getAttribute("email");
         return userRepository.findByEmail(email);
     }
 
@@ -40,5 +49,19 @@ public class UserService {
         user.setProviderId(principal.getAttribute("sub"));
 
         userRepository.save(user);
+    }
+
+    public UserDTO getUserInfoByEmail(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            return null;
+        }
+        
+        UserDTO userDTO = new UserDTO();
+        userDTO.setFname(user.getFname());
+        userDTO.setLname(user.getLname());
+        userDTO.setEmail(user.getEmail());
+        
+        return userDTO;
     }
 }
