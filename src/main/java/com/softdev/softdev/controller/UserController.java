@@ -17,13 +17,8 @@ import com.softdev.softdev.service.UserService;
 @RequestMapping("/api/user")
 public class UserController {
     
-
     @Autowired
     private UserService userService;
-    // @GetMapping("/info")
-    //  public String user(@AuthenticationPrincipal OAuth2User principal) {
-    //        return "Hello, " + principal.getAttribute("name");
-    //    }
 
     @GetMapping("/current_user_info")
     public UserDTO getCurrentUserInfo(@AuthenticationPrincipal OAuth2User principal) {
@@ -36,5 +31,12 @@ public class UserController {
         User user = userService.getUserByEmail(email);
         return userService.toDto(user);
     }
+
+    @GetMapping("/secure/test")
+    public String securedEndpoint() {
+        return "This is a secured endpoint!";   
+    }
+
+
     
 }
