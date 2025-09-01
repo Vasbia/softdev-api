@@ -12,6 +12,7 @@ import com.softdev.softdev.dto.User.UserDTO;
 import com.softdev.softdev.entity.User;
 import com.softdev.softdev.service.UserService;
 
+
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -27,24 +28,13 @@ public class UserController {
     @GetMapping("/current_user_info")
     public UserDTO getCurrentUserInfo(@AuthenticationPrincipal OAuth2User principal) {
         User user = userService.getCurrentUser(principal);
-
-        UserDTO userDTO = userService.getUserInfoByEmail(user.getEmail());
-         if (userDTO == null) {
-            throw new RuntimeException("User not found with email: " + user.getEmail());
-        }
-        
-        return userDTO;
+        return userService.toDto(user);
     }
     
     @GetMapping("/info/{email}")
     public UserDTO getUserCurrentUserInfo(@RequestParam String email) {
-        
-        UserDTO user = userService.getUserInfoByEmail(email);
-        if (user == null) {
-            throw new RuntimeException("User not found with email: " + email);
-        }
-        
-        return user;
+        User user = userService.getUserByEmail(email);
+        return userService.toDto(user);
     }
     
 }

@@ -51,12 +51,11 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserDTO getUserInfoByEmail(String email) {
-        User user = userRepository.findByEmail(email);
+    public UserDTO toDto(User user) {
         if (user == null) {
             return null;
         }
-        
+    
         UserDTO userDTO = new UserDTO();
         userDTO.setFname(user.getFname());
         userDTO.setLname(user.getLname());
