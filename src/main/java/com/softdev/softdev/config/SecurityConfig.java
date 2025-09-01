@@ -13,7 +13,6 @@ import com.softdev.softdev.Security.OAuth2LoginSuccessHandler;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, OAuth2LoginSuccessHandler successHandler) throws Exception {
         http
