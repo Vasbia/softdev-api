@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.oauth2.login.OAuth2LoginSecurityMarker;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
@@ -19,13 +18,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, OAuth2LoginSuccessHandler successHandler) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/user/**").authenticated()
+                .requestMatchers("/api/user/info").authenticated()
                 .anyRequest().permitAll()
             )
             .oauth2Login(oauth -> oauth
                 .loginPage("/oauth2/authorization/google")
                 .successHandler(successHandler)
-                // .defaultSuccessUrl("/api/user/info", true)
+                .defaultSuccessUrl("/", false)
             )
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint(

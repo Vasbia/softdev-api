@@ -18,6 +18,10 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public void CreateUser(@AuthenticationPrincipal OAuth2User principal){
         if(principal == null) {
             return;
