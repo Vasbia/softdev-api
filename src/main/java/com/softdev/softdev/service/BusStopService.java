@@ -16,6 +16,10 @@ public class BusStopService {
     @Autowired
     private BusStopRepository busStopRepository;
 
+    public BusStop getBusStopById(Long busStopId) {
+        return busStopRepository.findById(busStopId).orElseThrow(() -> new RuntimeException("BusStops not found for busStopId: " + busStopId));
+    }
+
     public List<BusStop> findAllByRouteRouteId(Long routeId) {
         return busStopRepository.findAllByRouteRouteId(routeId).orElseThrow(() -> new RuntimeException("BusStops not found for routeId: " + routeId));
     }

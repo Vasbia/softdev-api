@@ -19,9 +19,17 @@ public class BusStopController {
     @Autowired
     private BusStopService busStopService;
 
+    @GetMapping("/{busStopId}")
+    public BusStopDTO getBusStopById(@PathVariable Long busStopId) {
+        BusStop busStop = busStopService.getBusStopById(busStopId);
+
+        return busStopService.toDto(busStop);
+    }
+    
     @GetMapping("route/{routeId}")
     public List<BusStopDTO> getBusStopByRouteId(@PathVariable Long routeId) {
         List<BusStop> busStops = busStopService.findAllByRouteRouteId(routeId);
+
         return busStopService.toDtos(busStops);
     }
 
