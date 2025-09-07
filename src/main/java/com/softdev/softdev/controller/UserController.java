@@ -36,7 +36,4 @@ public class UserController {
     public String securedEndpoint() {
         return "This is a secured endpoint!";   
     }
-
-
-    
 }
