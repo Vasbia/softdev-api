@@ -10,6 +10,7 @@ import com.softdev.softdev.entity.Place;
 
 @Repository
 public interface PlaceRepository extends JpaRepository<Place, Long> {
+    Optional<Place> findByPlaceId(Long placeId);
     Optional<List<Place>> findAllByBusStopRouteRouteId(Long routeId);
     Optional<List<Place>> findAllByBusStopBusStopId(Long busStopId);
 }
