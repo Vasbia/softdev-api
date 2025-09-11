@@ -23,7 +23,7 @@ public class SecurityConfig {
             .oauth2Login(oauth -> oauth
                 .loginPage("/oauth2/authorization/google")
                 .successHandler(successHandler)
-                .defaultSuccessUrl("/", false)
+                // .defaultSuccessUrl("/", false)
             )
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint(

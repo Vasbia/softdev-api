@@ -83,7 +83,6 @@ public class BusService {
             }
         }
 
-
         long effectiveTime = differenceInSeconds - totalPauseTime;
         if (effectiveTime < 0) effectiveTime = 0;
 
@@ -107,7 +106,6 @@ public class BusService {
                 );
             }
         }
-
         return Map.of();
     }
 }
