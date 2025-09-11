@@ -5,6 +5,9 @@ import java.io.IOException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Component;
 
 import com.softdev.softdev.service.UserService;
@@ -17,9 +20,12 @@ import jakarta.servlet.http.HttpServletResponse;
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final UserService userService;
+    private final RequestCache requestCache;
 
-    OAuth2LoginSuccessHandler(UserService userService) {
+    public OAuth2LoginSuccessHandler(UserService userService) {
         this.userService = userService;
+        this.requestCache = new HttpSessionRequestCache();
+        setDefaultTargetUrl("/");
     }
 
     @Override
@@ -29,24 +35,28 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
         
         try {
-            if (oidcUser == null) {
-                throw new IllegalArgumentException("OIDC User is null");
-            }
-
-            String email = oidcUser.getAttribute("email");
-            if(userService.isUserExists(email)){
-                throw new IllegalArgumentException("User already exists with email: " + email);
-            }
-
-
-            System.out.println("Authenticated user email: " + email);
-
-            userService.CreateUser(oidcUser);
-
+            String email = oidcUser.getEmail();
+            
         
-        super.onAuthenticationSuccess(request, response, authentication);
-    } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An error occurred during authentication.");
+            if (!userService.isUserExists(email)) {
+                userService.CreateUser(oidcUser);
+            }
+            System.out.println("User :" + email);
+            
+            // Handle redirect
+            SavedRequest savedRequest = requestCache.getRequest(request, response);
+            if (savedRequest != null) {
+                // Redirect to the original requested URL
+                String targetUrl = savedRequest.getRedirectUrl();
+                getRedirectStrategy().sendRedirect(request, response, targetUrl);
+            } else {
+                // Redirect to default URL
+                getRedirectStrategy().sendRedirect(request, response, getDefaultTargetUrl());
+            }
+            
+        } catch (Exception e) {
+            logger.error("Error during authentication success handling", e);
+            super.onAuthenticationSuccess(request, response, authentication);
         }
     }
 }

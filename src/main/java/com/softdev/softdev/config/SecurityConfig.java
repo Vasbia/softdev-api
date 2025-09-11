@@ -23,14 +23,19 @@ public class SecurityConfig {
             .oauth2Login(oauth -> oauth
                 .loginPage("/oauth2/authorization/google")
                 .successHandler(successHandler)
-                .defaultSuccessUrl("/", false)
             )
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint(
                     new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/google")
                 )
             )
-            .csrf(csrf -> csrf.disable()); //easy for testing, don't use in production
+            .logout(logout -> logout
+                .logoutSuccessUrl("/")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .clearAuthentication(true)
+            )
+            .csrf(csrf -> csrf.disable());
             
         return http.build();
     }
