@@ -6,8 +6,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class ValidateFeedbackBusDTO {
+public class CreateFeedbackBusDTO {
 
+
+    private Long feedbackBusId;
+    
     @NotNull(message = "BusId is required")
     private Long busId;
 
