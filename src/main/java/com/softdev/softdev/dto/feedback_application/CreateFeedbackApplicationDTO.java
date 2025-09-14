@@ -13,5 +13,4 @@ public class CreateFeedbackApplicationDTO {
     private Integer rating;
 
     private String comment;
-    private Long userId;
 }
