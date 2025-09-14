@@ -17,7 +17,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, OAuth2LoginSuccessHandler successHandler) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/user/current_user_info", "/api/user/secure/**").authenticated()
+                .requestMatchers("/api/user/**", "/login").authenticated()
+                .requestMatchers( org.springframework.http.HttpMethod.POST , "/api/**").authenticated()
+                .requestMatchers( org.springframework.http.HttpMethod.PUT , "/api/**").authenticated()
+                .requestMatchers( org.springframework.http.HttpMethod.DELETE , "/api/**").authenticated()
                 .anyRequest().permitAll()
             )
             .oauth2Login(oauth -> oauth

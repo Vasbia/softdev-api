@@ -7,9 +7,6 @@ import lombok.Data;
 
 @Data
 public class CreateFeedbackBusDTO {
-
-
-    private Long feedbackBusId;
     
     @NotNull(message = "BusId is required")
     private Long busId;
