@@ -80,11 +80,12 @@ public class FeedbackPlaceService {
     }
 
 
-    public FeedbackPlace updateFeedback(Long feedbackId, FeedbackPlaceDTO feedbackDTO, OidcUser oidcUser) {
+    public FeedbackPlace updateFeedback(Long feedbackId, Integer rating, String comment, OAuth2User principal) {
         FeedbackPlace feedback = feedbackPlaceRepository.findById(feedbackId)
             .orElseThrow(() -> new EntityNotFoundException("Feedback not found"));
 
-        User user = userRepository.findByEmail(oidcUser.getEmail());
+        User user = userService.getCurrentUser(principal);
+
         if (user == null) {
             throw new EntityNotFoundException("User not found");
         }
@@ -93,8 +94,8 @@ public class FeedbackPlaceService {
             throw new IllegalStateException("Not authorized to update this feedback");
         }
 
-        feedback.setRating(feedbackDTO.getRating());
-        feedback.setComment(feedbackDTO.getComment());
+        feedback.setRating(rating);
+        feedback.setComment(comment);
 
         return feedbackPlaceRepository.save(feedback);
     }

@@ -11,12 +11,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.softdev.softdev.dto.APIResponseDTO;
+import com.softdev.softdev.dto.feedback_bus.FeedbackBusDTO;
 import com.softdev.softdev.dto.feedback_place.CreateFeedbackPlaceDTO;
 import com.softdev.softdev.dto.feedback_place.FeedbackPlaceDTO;
+import com.softdev.softdev.dto.feedback_place.UpdateFeedbackPlaceDTO;
 import com.softdev.softdev.entity.FeedbackPlace;
 import com.softdev.softdev.service.FeedbackPlaceService;
 
@@ -62,12 +65,28 @@ public class FeedbackPlaceController {
         return feedbackPlaceService.toDto(feedbackPlace);
     }
 
-    // @PutMapping("/{")
-    // public String putMethodName(@PathVariable String id, @RequestBody String entity) {
-    //     //TODO: process PUT request
-        
-    //     return entity;
-    // }
+    @PutMapping("/updateFeedbackPlace")
+    public ResponseEntity<?> updateFeedbackPlace(
+        @AuthenticationPrincipal OAuth2User principal,
+        @Valid @ModelAttribute UpdateFeedbackPlaceDTO updateFeedbackPlaceDTO
+    )
+    {
+        FeedbackPlace feedbackPlace = feedbackPlaceService.updateFeedback(
+            updateFeedbackPlaceDTO.getFeedbackPlaceId(),
+            updateFeedbackPlaceDTO.getRating(),
+            updateFeedbackPlaceDTO.getComment(),
+            principal
+        );
+
+        FeedbackPlaceDTO feedbackPlaceDTO = feedbackPlaceService.toDto(feedbackPlace);
+
+        APIResponseDTO<FeedbackPlaceDTO> response = new APIResponseDTO<>();
+        response.setData(feedbackPlaceDTO);
+        response.setMessage("FeedbackPlace updated successfully");
+        return ResponseEntity.ok(response);
+
+
+    }
 
     @DeleteMapping("/{feedbackId}")
     public FeedbackPlaceDTO deleteFeedback(
