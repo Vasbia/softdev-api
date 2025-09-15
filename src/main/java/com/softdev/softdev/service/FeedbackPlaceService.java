@@ -51,7 +51,7 @@ public class FeedbackPlaceService {
     }
 
     public List<FeedbackPlace> getFeedbacksByPlaceId(Long placeId) {
-        return feedbackPlaceRepository.findByPlace_PlaceId(placeId)
+        return feedbackPlaceRepository.findAllByPlacePlaceId(placeId)
             .orElseThrow(() -> new EntityNotFoundException("No feedback found for placeId: " + placeId));
     }
 

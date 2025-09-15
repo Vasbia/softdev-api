@@ -8,9 +8,10 @@ import org.springframework.stereotype.Repository;
 
 import com.softdev.softdev.entity.FeedbackPlace;
 
+
 @Repository
 public interface FeedbackPlaceRepository extends JpaRepository<FeedbackPlace, Long> {
     Optional<FeedbackPlace> findById(Long feedbackPlaceId);
-    Optional<List<FeedbackPlace>> findByPlace_PlaceId(Long placeId);
+    Optional<List<FeedbackPlace>> findAllByPlacePlaceId(long placeId);
     boolean existsByUser_UserIdAndPlace_PlaceId(Long userId, Long placeId);
 }

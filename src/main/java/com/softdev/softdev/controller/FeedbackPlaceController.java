@@ -51,9 +51,10 @@ public class FeedbackPlaceController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{placeId}")
-    public ResponseEntity<List<FeedbackPlace>> getFeedbacksByPlaceId(@PathVariable Long placeId) {
-        return ResponseEntity.ok(feedbackPlaceService.getFeedbacksByPlaceId(placeId));
+    @GetMapping("/place/{placeId}")
+    public List<FeedbackPlaceDTO> getFeedbacksByPlaceId(@PathVariable Long placeId) {
+        List<FeedbackPlace> feedbackPlaces = feedbackPlaceService.getFeedbacksByPlaceId(placeId);
+        return feedbackPlaceService.toDtoList(feedbackPlaces);
     }
 
     // @PutMapping("/{")
