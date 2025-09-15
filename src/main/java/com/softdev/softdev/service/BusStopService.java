@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.softdev.softdev.dto.busstop.BusStopDTO;
 import com.softdev.softdev.entity.BusStop;
 import com.softdev.softdev.entity.RoutePath;
 import com.softdev.softdev.repository.BusStopRepository;
@@ -15,12 +16,24 @@ public class BusStopService {
     @Autowired
     private BusStopRepository busStopRepository;
 
-    public BusStop findById(Long id) {
-        return busStopRepository.findById(id).orElseThrow(() -> new RuntimeException("BusStop not found with id: " + id));
+    public BusStop getBusStopById(Long busStopId) {
+        return busStopRepository.findById(busStopId).orElseThrow(() -> new RuntimeException("BusStops not found for busStopId: " + busStopId));
     }
 
     public List<BusStop> findAllByRouteRouteId(Long routeId) {
         return busStopRepository.findAllByRouteRouteId(routeId).orElseThrow(() -> new RuntimeException("BusStops not found for routeId: " + routeId));
+    }
+
+    public BusStopDTO toDto(BusStop busStop) {
+        BusStopDTO dto = new BusStopDTO();
+        dto.setName(busStop.getName());
+        dto.setLatitude(busStop.getGeoLocation().getLatitude());
+        dto.setLongitude(busStop.getGeoLocation().getLongitude());
+        return dto;
+    }
+
+    public List<BusStopDTO> toDtos(List<BusStop> busStops) {
+        return busStops.stream().map(this::toDto).toList();
     }
 
     public List<Double> getBusStopDistances(Long routeId, List<RoutePath> routePaths, List<Double> cumulative) {

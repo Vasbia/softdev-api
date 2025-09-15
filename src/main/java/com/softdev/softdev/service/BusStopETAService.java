@@ -24,7 +24,7 @@ public class BusStopETAService {
     private BusStopService busStopService;
 
     public Map<String, Object> ETAToStop(Double buslat, Double buslon, Long stopId) throws ParseException {
-        BusStop stop = busStopService.findById(stopId);
+        BusStop stop = busStopService.getBusStopById(stopId);
         Double stoplat = stop.getGeoLocation().getLatitude();
         Double stoplon = stop.getGeoLocation().getLongitude();
 

@@ -14,6 +14,10 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found for userId: " + userId));
+    }
     
     public boolean isUserExists(String email) {
         return userRepository.existsByEmail(email);
