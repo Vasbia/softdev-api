@@ -50,7 +50,7 @@ public class BusStopETAService {
                 JSONObject route = (JSONObject) routes.get(0);
                 double durationSeconds = ((Number) route.get("duration")).doubleValue();
                 return Map.of(
-                    "etaMinutes", durationSeconds
+                    "eta_seconds", durationSeconds
                 );
             }
         }
@@ -59,7 +59,7 @@ public class BusStopETAService {
         }
 
         return Map.of(
-            "etaMinutes", 99999
+            "eta_seconds", 99999
         );
     }
 }

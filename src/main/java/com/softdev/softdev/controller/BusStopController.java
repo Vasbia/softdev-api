@@ -21,6 +21,7 @@ public class BusStopController {
     @Autowired
     private BusStopETAService busStopETAService;
 
+    @Autowired
     private BusStopService busStopService;
 
     @GetMapping("/{busStopId}")
