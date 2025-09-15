@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,6 +56,12 @@ public class FeedbackPlaceController {
         return feedbackPlaceService.toDtoList(feedbackPlaces);
     }
 
+    @GetMapping("/{feedbackPlaceId}")
+    public FeedbackPlaceDTO getFeedbackById(@PathVariable Long feedbackPlaceId) {
+        FeedbackPlace feedbackPlace = feedbackPlaceService.getFeedbaakPlaceById(feedbackPlaceId);
+        return feedbackPlaceService.toDto(feedbackPlace);
+    }
+
     // @PutMapping("/{")
     // public String putMethodName(@PathVariable String id, @RequestBody String entity) {
     //     //TODO: process PUT request
@@ -65,10 +70,11 @@ public class FeedbackPlaceController {
     // }
 
     @DeleteMapping("/{feedbackId}")
-    public ResponseEntity<Void> deleteFeedback(
-            @PathVariable Long feedbackId,
-            @AuthenticationPrincipal OidcUser user) {
-        feedbackPlaceService.deleteFeedback(feedbackId, user);
-        return ResponseEntity.ok().build();
+    public FeedbackPlaceDTO deleteFeedback(
+        Long feedbackId,
+        @AuthenticationPrincipal OAuth2User principal
+    )
+    {
+        return feedbackPlaceService.toDto(feedbackPlaceService.deleteFeedback(feedbackId, principal));
     }
 }

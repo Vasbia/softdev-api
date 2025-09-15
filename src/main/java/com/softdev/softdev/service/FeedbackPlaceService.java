@@ -55,12 +55,18 @@ public class FeedbackPlaceService {
             .orElseThrow(() -> new EntityNotFoundException("No feedback found for placeId: " + placeId));
     }
 
+    public FeedbackPlace getFeedbaakPlaceById(Long feedbackPlaceId ){
+        return feedbackPlaceRepository.findById(feedbackPlaceId)
+            .orElseThrow(() -> new EntityNotFoundException("No feedback found for feedbackPlaceId: " + feedbackPlaceId));
 
-    public FeedbackPlace deleteFeedback(Long feedbackId, OidcUser oidcUser) {
+    }
+
+
+    public FeedbackPlace deleteFeedback(Long feedbackId, OAuth2User principal) {
         FeedbackPlace feedback = feedbackPlaceRepository.findById(feedbackId)
             .orElseThrow(() -> new EntityNotFoundException("Feedback not found"));
             
-        User user = userRepository.findByEmail(oidcUser.getEmail());
+        User user = userService.getCurrentUser(principal); 
         if (user == null) {
             throw new EntityNotFoundException("User not found");
         }
