@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.softdev.softdev.dto.APIResponseDTO;
@@ -83,13 +82,21 @@ public class FeedbackBusController {
      }
 
     @GetMapping("/{feedbackBusId}")
-    public String getMethodName(@RequestParam String param) {
-        return new String();
+    public FeedbackBusDTO getFeedbackBusbyId(@PathVariable Long feedbackBusId) {
+        FeedbackBus feedbackBus = feedbackBusService.getFeedbackBusById(feedbackBusId);
+
+        return feedbackBusService.toDto(feedbackBus);
     }
 
     @DeleteMapping("/{feedbackBusId}")
-    public String deleteMethodName(@PathVariable String id) {
-        return id;
+    public FeedbackBusDTO deleteFeedbackBus(
+        @PathVariable Long feedbackBusId,
+        @AuthenticationPrincipal OAuth2User principal
+    ) 
+    {
+        FeedbackBus feedbackBus = feedbackBusService.deleteFeedbackBus(feedbackBusId, principal);
+
+        return feedbackBusService.toDto(feedbackBus);
     } 
     
     

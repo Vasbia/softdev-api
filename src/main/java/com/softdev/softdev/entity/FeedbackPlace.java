@@ -27,7 +27,7 @@ public class FeedbackPlace {
 
     @ManyToOne
     @JoinColumn(name = "place_id")
-    private Bus bus;
+    private Place place;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
