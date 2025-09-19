@@ -19,11 +19,16 @@ import net.minidev.json.parser.ParseException;
 
 @Service
 public class BusStopETAService {
+    @Autowired
+    private BusService BusService;
 
     @Autowired
     private BusStopService busStopService;
 
-    public Map<String, Object> ETAToStop(Double buslat, Double buslon, Long stopId) throws ParseException {
+    public Map<String, Object> ETAToStop(Long busId, Long stopId) throws ParseException {
+        Map<String, Object> position = BusService.showBusPosition(busId);
+        Double buslat = (Double) position.get("latitude");
+        Double buslon = (Double) position.get("longitude");
         BusStop stop = busStopService.getBusStopById(stopId);
         Double stoplat = stop.getGeoLocation().getLatitude();
         Double stoplon = stop.getGeoLocation().getLongitude();

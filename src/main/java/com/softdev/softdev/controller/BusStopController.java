@@ -38,8 +38,8 @@ public class BusStopController {
         return busStopService.toDtos(busStops);
     }
 
-    @GetMapping("/eta/{stopId}")
-    public Map<String, Object> getStopETA(@PathVariable Long stopId, Double buslat, Double buslon) throws Exception {
-        return busStopETAService.ETAToStop(buslat, buslon, stopId);
+    @GetMapping("/eta/{busId}/{stopId}")
+    public Map<String, Object> getStopETA(@PathVariable Long busId, @PathVariable Long stopId) throws Exception {
+        return busStopETAService.ETAToStop(busId, stopId);
     }
 }
