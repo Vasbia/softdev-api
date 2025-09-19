@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.softdev.softdev.dto.busstop.BusStopDTO;
+import com.softdev.softdev.dto.busstop.BusStopETADTO;
 import com.softdev.softdev.entity.BusStop;
 import com.softdev.softdev.service.BusStopETAService;
 import com.softdev.softdev.service.BusStopService;
@@ -19,10 +20,10 @@ import com.softdev.softdev.service.BusStopService;
 @RequestMapping("/api/busstop")
 public class BusStopController {
     @Autowired
-    private BusStopETAService busStopETAService;
+    private BusStopService busStopService;
 
     @Autowired
-    private BusStopService busStopService;
+    private BusStopETAService busStopETAService;
 
     @GetMapping("/{busStopId}")
     public BusStopDTO getBusStopById(@PathVariable Long busStopId) {
@@ -39,7 +40,9 @@ public class BusStopController {
     }
 
     @GetMapping("/eta/{busId}/{stopId}")
-    public Map<String, Object> getStopETA(@PathVariable Long busId, @PathVariable Long stopId) throws Exception {
-        return busStopETAService.ETAToStop(busId, stopId);
+    public BusStopETADTO getStopETA(@PathVariable Long busId, @PathVariable Long stopId) throws Exception {
+        Map<String, Object> busStopETA = busStopETAService.ETAToStop(busId, stopId);
+        return busStopETAService.toDto(busStopETA);
     }
+
 }
