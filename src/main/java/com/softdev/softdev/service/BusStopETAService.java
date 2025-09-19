@@ -10,6 +10,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.softdev.softdev.dto.busstop.BusStopETADTO;
 import com.softdev.softdev.entity.BusStop;
 
 import net.minidev.json.JSONArray;
@@ -24,6 +25,16 @@ public class BusStopETAService {
 
     @Autowired
     private BusStopService busStopService;
+
+    public BusStopETADTO toDto(Map<String, Object> busStopETA) {
+        BusStopETADTO dto = new BusStopETADTO();
+        dto.setEta_seconds(((Number) busStopETA.get("eta_seconds")).doubleValue());
+        return dto;
+    }
+
+    // public List<BusStopETADTO> toDtos(List<Map<String, Object>> busStopETAs) {
+    //     return busStopETAs.stream().map(this::toDto).toList();
+    // }
 
     public Map<String, Object> ETAToStop(Long busId, Long stopId) throws ParseException {
         Map<String, Object> position = BusService.showBusPosition(busId);
