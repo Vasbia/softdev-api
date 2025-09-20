@@ -1,5 +1,7 @@
 package com.softdev.softdev.entity;
 
+import java.time.LocalTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -36,4 +38,10 @@ public class Notification {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column(name= "is_active")
+    private Boolean isActive;
+
+    @Column(name = "active_time")
+    private LocalTime activeTime;
 }
