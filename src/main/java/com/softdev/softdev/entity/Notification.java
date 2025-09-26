@@ -22,7 +22,7 @@ public class Notification {
     private Long notificationId;
 
     @Column(name = "title", nullable = false)
-    private Integer title;
+    private String title;
 
     @Column(name = "message", nullable = false)
     private String message;
@@ -42,6 +42,6 @@ public class Notification {
     @Column(name= "is_active")
     private Boolean isActive;
 
-    @Column(name = "active_time")
-    private LocalTime activeTime;
+    @Column(name = "time_to_send")
+    private LocalTime timeToSend;
 }
