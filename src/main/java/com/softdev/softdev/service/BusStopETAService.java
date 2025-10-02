@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +33,9 @@ public class BusStopETAService {
         return dto;
     }
 
-    // public List<BusStopETADTO> toDtos(List<Map<String, Object>> busStopETAs) {
-    //     return busStopETAs.stream().map(this::toDto).toList();
-    // }
+    public List<BusStopETADTO> toDtos(List<Map<String, Object>> busStopETAs) {
+        return busStopETAs.stream().map(this::toDto).toList();
+    }
 
     public Map<String, Object> ETAToStop(Long busId, Long stopId) throws ParseException {
         Map<String, Object> position = BusService.showBusPosition(busId);
@@ -77,5 +78,18 @@ public class BusStopETAService {
         return Map.of(
             "eta_seconds", 99999
         );
+    }
+
+    public List<Map<String, Object>> ETAToAllStop(Long busId){
+        Long busrouteid = BusService.getBusById(busId).getRoute().getRouteId();
+        List<BusStop> stops = busStopService.findAllByRouteRouteId(busrouteid);
+        List<Map<String, Object>> etas = stops.stream().map(stop -> {
+            try {
+                return ETAToStop(busId, stop.getBusStopId());
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
+        return etas;
     }
 }

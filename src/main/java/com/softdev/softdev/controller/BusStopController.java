@@ -45,4 +45,10 @@ public class BusStopController {
         return busStopETAService.toDto(busStopETA);
     }
 
+    @GetMapping("/eta/{busId}/all")
+    public List<BusStopETADTO> getStopETA(@PathVariable Long busId) {
+        List<Map<String, Object>> allBusStopETA = busStopETAService.ETAToAllStop(busId);
+        return busStopETAService.toDtos(allBusStopETA);
+    }
+
 }
