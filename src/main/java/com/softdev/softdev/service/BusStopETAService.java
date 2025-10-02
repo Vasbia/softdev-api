@@ -29,7 +29,9 @@ public class BusStopETAService {
 
     public BusStopETADTO toDto(Map<String, Object> busStopETA) {
         BusStopETADTO dto = new BusStopETADTO();
-        dto.setEta_seconds(((Number) busStopETA.get("eta_seconds")).doubleValue());
+        dto.setBus_id((Long) busStopETA.get("bus_id"));
+        dto.setStop_id((Long) busStopETA.get("stop_id"));
+        dto.setEta_seconds(((Number) busStopETA.get("eta_seconds")).doubleValue()); 
         return dto;
     }
 
@@ -67,6 +69,8 @@ public class BusStopETAService {
                 JSONObject route = (JSONObject) routes.get(0);
                 double durationSeconds = ((Number) route.get("duration")).doubleValue();
                 return Map.of(
+                    "bus_id", busId,
+                    "stop_id", stopId,
                     "eta_seconds", durationSeconds
                 );
             }
@@ -75,9 +79,7 @@ public class BusStopETAService {
             
         }
 
-        return Map.of(
-            "eta_seconds", 99999
-        );
+        throw new RuntimeException("Failed to fetch ETA from OSRM API: maybe due to rate limit");
     }
 
     public List<Map<String, Object>> ETAToAllStop(Long busId){
