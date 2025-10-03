@@ -18,9 +18,9 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/user/**", "/login").authenticated()
-                .requestMatchers( org.springframework.http.HttpMethod.POST , "/api/**").authenticated()
-                .requestMatchers( org.springframework.http.HttpMethod.PUT , "/api/**").authenticated()
-                .requestMatchers( org.springframework.http.HttpMethod.DELETE , "/api/**").authenticated()
+                // .requestMatchers( org.springframework.http.HttpMethod.POST , "/api/**").authenticated()
+                // .requestMatchers( org.springframework.http.HttpMethod.PUT , "/api/**").authenticated()
+                // .requestMatchers( org.springframework.http.HttpMethod.DELETE , "/api/**").authenticated()
                 .anyRequest().permitAll()
             )
             .oauth2Login(oauth -> oauth

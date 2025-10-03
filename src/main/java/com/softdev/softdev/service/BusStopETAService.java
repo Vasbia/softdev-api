@@ -31,7 +31,7 @@ public class BusStopETAService {
         BusStopETADTO dto = new BusStopETADTO();
         dto.setBus_id((Long) busStopETA.get("bus_id"));
         dto.setStop_id((Long) busStopETA.get("stop_id"));
-        dto.setEta_seconds(((Number) busStopETA.get("eta_seconds")).doubleValue()); 
+        dto.setEta_seconds(((Number) busStopETA.get("eta_seconds")).doubleValue());
         return dto;
     }
 
@@ -48,41 +48,39 @@ public class BusStopETAService {
         Double stoplon = stop.getGeoLocation().getLongitude();
 
         try {
-        String url = String.format(
-            "http://router.project-osrm.org/route/v1/driving/%f,%f;%f,%f?overview=false",
-            buslon, buslat, stoplon, stoplat
-        );
+            String url = String.format(
+                    "http://router.project-osrm.org/route/v1/driving/%f,%f;%f,%f?overview=false",
+                    buslon, buslat, stoplon, stoplat);
 
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(url))
-            .build();
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .build();
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        if (response.statusCode() == 200) {
-            JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-            JSONObject obj = (JSONObject) parser.parse(response.body());
+            if (response.statusCode() == 200) {
+                JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
+                JSONObject obj = (JSONObject) parser.parse(response.body());
 
-            JSONArray routes = (JSONArray) obj.get("routes");
-            if (routes != null && !routes.isEmpty()) {
-                JSONObject route = (JSONObject) routes.get(0);
-                double durationSeconds = ((Number) route.get("duration")).doubleValue();
-                return Map.of(
-                    "bus_id", busId,
-                    "stop_id", stopId,
-                    "eta_seconds", durationSeconds
-                );
+                JSONArray routes = (JSONArray) obj.get("routes");
+                if (routes != null && !routes.isEmpty()) {
+                    JSONObject route = (JSONObject) routes.get(0);
+                    double durationSeconds = ((Number) route.get("duration")).doubleValue();
+                    return Map.of(
+                            "bus_id", busId,
+                            "stop_id", stopId,
+                            "eta_seconds", durationSeconds);
+                }
             }
-        }
         } catch (IOException | InterruptedException e) {
-            
+
         }
 
         throw new RuntimeException("Failed to fetch ETA from OSRM API: maybe due to rate limit");
     }
 
-    public List<Map<String, Object>> ETAToAllStop(Long busId){
+    public List<Map<String, Object>> ETAToAllStop(Long busId) {
         Long busrouteid = BusService.getBusById(busId).getRoute().getRouteId();
         List<BusStop> stops = busStopService.findAllByRouteRouteId(busrouteid);
         List<Map<String, Object>> etas = stops.stream().map(stop -> {
