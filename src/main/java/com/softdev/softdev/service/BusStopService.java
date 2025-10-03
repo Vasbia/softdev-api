@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.softdev.softdev.dto.busstop.BusStopDTO;
 import com.softdev.softdev.entity.BusStop;
 import com.softdev.softdev.entity.RoutePath;
+import com.softdev.softdev.exception.ResourceNotFoundException;
 import com.softdev.softdev.repository.BusStopRepository;
 
 @Service
@@ -17,28 +18,16 @@ public class BusStopService {
     private BusStopRepository busStopRepository;
 
     public BusStop getBusStopById(Long busStopId) {
-        return busStopRepository.findById(busStopId).orElseThrow(() -> new RuntimeException("BusStops not found for busStopId: " + busStopId));
+        return busStopRepository.findById(busStopId).orElseThrow(() -> new ResourceNotFoundException("Bus stop not found with id: " + busStopId));
     }
 
     public List<BusStop> findAllByRouteRouteId(Long routeId) {
-        return busStopRepository.findAllByRouteRouteId(routeId).orElseThrow(() -> new RuntimeException("BusStops not found for routeId: " + routeId));
-    }
-
-    public BusStopDTO toDto(BusStop busStop) {
-        BusStopDTO dto = new BusStopDTO();
-        dto.setName(busStop.getName());
-        dto.setLatitude(busStop.getGeoLocation().getLatitude());
-        dto.setLongitude(busStop.getGeoLocation().getLongitude());
-        return dto;
-    }
-
-    public List<BusStopDTO> toDtos(List<BusStop> busStops) {
-        return busStops.stream().map(this::toDto).toList();
+        return busStopRepository.findAllByRouteRouteId(routeId).orElseThrow(() -> new ResourceNotFoundException("No bus stops found for routeId: " + routeId));
     }
 
     public List<Double> getBusStopDistances(Long routeId, List<RoutePath> routePaths, List<Double> cumulative) {
         List<BusStop> busStops = findAllByRouteRouteId(routeId);
-        
+
         List<Double> busStopDistances = new ArrayList<>();
 
         for (BusStop stop : busStops) {
@@ -57,5 +46,17 @@ public class BusStopService {
         }
 
         return busStopDistances;
+    }
+
+    public BusStopDTO toDto(BusStop busStop) {
+        BusStopDTO dto = new BusStopDTO();
+        dto.setName(busStop.getName());
+        dto.setLatitude(busStop.getGeoLocation().getLatitude());
+        dto.setLongitude(busStop.getGeoLocation().getLongitude());
+        return dto;
+    }
+
+    public List<BusStopDTO> toDtos(List<BusStop> busStops) {
+        return busStops.stream().map(this::toDto).toList();
     }
 }
