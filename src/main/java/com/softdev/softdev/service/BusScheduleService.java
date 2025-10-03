@@ -1,5 +1,6 @@
 package com.softdev.softdev.service;
 
+import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,4 +32,11 @@ public class BusScheduleService {
     public List<BusScheduleDTO> toDtos(List<BusSchedule> busSchedules) {
         return busSchedules.stream().map(this::toDto).toList();
     }
+    public LocalTime findBusScheduleTime(Long busId, Long busStopId, Integer currentRound){
+      BusSchedule busSchedule = busScheduleRepository.findArriveTimeByBus_BusIdAndBusStop_BusStopIdAndRound(busId, busStopId, currentRound)
+                .orElseThrow(() -> new RuntimeException("BusSchedule not found for busId: " + busId + ", busStopId: " + busStopId + ", round: " + currentRound));
+        return busSchedule.getArriveTime();
+    }
+
+
 }

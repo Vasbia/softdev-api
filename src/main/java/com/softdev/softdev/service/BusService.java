@@ -36,6 +36,37 @@ public class BusService {
         return busRepository.findById(busId).orElseThrow(() -> new ResourceNotFoundException("Bus not found with id: " + busId));
     }
 
+
+    public Integer getCurrentRound(Long busId){
+        List<BusSchedule> busSchedules = busScheduleService.findBusScheduleByBusId(busId);
+        if (busSchedules.isEmpty()) {
+            throw new RuntimeException("No bus schedules found for busId: " + busId);
+        }
+
+        LocalTime start = null;
+        Integer currentRound = null;
+        for (BusSchedule schedule : busSchedules) {
+            if (schedule.getScheduleOrder() == 1) {
+                for (BusSchedule sch : busSchedules) {
+                    if (sch.getRound() == schedule.getRound() && sch.getScheduleOrder() == 8) {
+                        if ((schedule.getArriveTime().isBefore(LocalTime.now()) || schedule.getArriveTime().equals(LocalTime.now()))
+                                && (sch.getArriveTime().isAfter(LocalTime.now()) || sch.getArriveTime().equals(LocalTime.now()))) {
+                            start = schedule.getArriveTime();
+                            currentRound = schedule.getRound();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (start == null) {
+            throw new RuntimeException("No active bus schedule found for busId: " + busId + " at current time");
+        }
+
+        return currentRound;
+    }
+
     public Map<String, Object> showBusPosition(Long busId) {
         Double latitude;
         Double longitude;
