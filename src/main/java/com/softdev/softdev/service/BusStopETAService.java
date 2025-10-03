@@ -27,11 +27,14 @@ public class BusStopETAService {
     @Autowired
     private BusStopService busStopService;
 
+    @Autowired
+    private RoutePathService routePathService;
+
     public BusStopETADTO toDto(Map<String, Object> busStopETA) {
         BusStopETADTO dto = new BusStopETADTO();
         dto.setBus_id((Long) busStopETA.get("bus_id"));
         dto.setStop_id((Long) busStopETA.get("stop_id"));
-        dto.setEta_seconds(((Number) busStopETA.get("eta_seconds")).doubleValue());
+        dto.setEta_seconds(((Long) busStopETA.get("eta_seconds")));
         return dto;
     }
 
@@ -66,7 +69,7 @@ public class BusStopETAService {
                 JSONArray routes = (JSONArray) obj.get("routes");
                 if (routes != null && !routes.isEmpty()) {
                     JSONObject route = (JSONObject) routes.get(0);
-                    double durationSeconds = ((Number) route.get("duration")).doubleValue();
+                    Long durationSeconds = ((Long) route.get("duration"));
                     return Map.of(
                             "bus_id", busId,
                             "stop_id", stopId,
@@ -78,6 +81,18 @@ public class BusStopETAService {
         }
 
         throw new RuntimeException("Failed to fetch ETA from OSRM API: maybe due to rate limit");
+        // double BUS_SPEED_KMH = 10.0;
+        // double BUS_SPEED_MS = BUS_SPEED_KMH * 1000 / 3600;
+        // Bus bus = BusService.getBusById(busId);
+        // List<RoutePath> routePaths = routePathService.findRoutePathByRouteId(bus.getRoute().getRouteId());
+        // List<Double> cumulative = routePathService.getCumulativeDistance(routePaths);
+        // List<Double> busStopDistances = busStopService.getBusStopDistances(bus.getRoute().getRouteId(), routePaths, cumulative);
+        // double stopDistance = busStopDistances.get((int) (busId - 1));
+        // double timeToReachStop = stopDistance / BUS_SPEED_MS;
+        // return Map.of(
+        //         "bus_id", busId,
+        //         "stop_id", stopId,
+        //         "eta_seconds", timeToReachStop);
     }
 
     public List<Map<String, Object>> ETAToAllStop(Long busId) {
