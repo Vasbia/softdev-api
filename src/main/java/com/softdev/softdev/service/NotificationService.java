@@ -128,5 +128,12 @@ public class NotificationService {
         return notifications.stream().map(this::toDto).toList();
     }
 
+    public Integer countActiveNotification(OAuth2User principal) {
+        User user = userService.getCurrentUser(principal);
+        List<Notification> notifications = notificationRepository.findByUser_UserIdAndIsActive(user.getUserId(), true);
+
+        return notifications.size();
+    }
+
 
 }

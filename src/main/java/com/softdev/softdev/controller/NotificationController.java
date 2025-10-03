@@ -23,6 +23,7 @@ import jakarta.validation.Valid;
 
 
 
+
 @RestController
 @RequestMapping("/api/notification")
 public class NotificationController {
@@ -33,7 +34,7 @@ public class NotificationController {
     @Autowired
     private NotificationService notificationService;
 
-    @PostMapping("/createNotification")
+    @PostMapping("/TrackBusStop")
     public ResponseEntity<?> createNotification(
         @AuthenticationPrincipal OAuth2User principal,
         @Valid @ModelAttribute CreateNotificationDTO createNotificationDTO
@@ -70,6 +71,11 @@ public class NotificationController {
         APIResponseDTO<NotificationDTO> response = new APIResponseDTO<>();
         response.setMessage("Update Notification successfully.");
         return ResponseEntity.ok(response);
+    }
+    
+    @GetMapping("/countNotification")
+    public Integer countNotification(@AuthenticationPrincipal OAuth2User principal) {
+        return notificationService.countActiveNotification(principal);
     }
     
     
