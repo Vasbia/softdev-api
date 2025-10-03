@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import com.softdev.softdev.dto.feedback_application.FeedbackApplicationDTO;
 import com.softdev.softdev.entity.FeedbackApplication;
 import com.softdev.softdev.entity.User;
+import com.softdev.softdev.exception.ResourceNotFoundException;
+import com.softdev.softdev.exception.user.UserForBiddenException;
+import com.softdev.softdev.exception.user.UserNotAuthenticatedException;
 import com.softdev.softdev.repository.FeedbackApplicationRepository;
 
 @Service
@@ -21,8 +24,8 @@ public class FeedbackApplicationService {
 
     public FeedbackApplication createFeedbackApplication(Integer rating, String message, OAuth2User principal) {
         User user = userService.getCurrentUser(principal);
-        if(user == null) {
-            throw new RuntimeException("User is not authenticated"); 
+        if (user == null) {
+            throw new UserNotAuthenticatedException("User is not authenticated");
         }
 
         FeedbackApplication feedbackApplication = new FeedbackApplication();
@@ -34,29 +37,30 @@ public class FeedbackApplicationService {
     }
 
     public FeedbackApplication getFeedbackApplicationById(Long feedbackApplicationId) {
-        return feedbackApplicationRepository.findById(feedbackApplicationId).orElseThrow(() -> new RuntimeException("FeedbackApplication not found for feedbackApplicationId: " + feedbackApplicationId));
+        return feedbackApplicationRepository.findById(feedbackApplicationId).orElseThrow(() -> new ResourceNotFoundException("FeedbackApplication not found with id: " + feedbackApplicationId));
     }
 
     public List<FeedbackApplication> getAllFeedbackApplication() {
         return feedbackApplicationRepository.findAll();
     }
 
-    public FeedbackApplication updateFeedbackApplication(Long feedbackApplicationId, Integer rating, String message, OAuth2User principal) {
+    public FeedbackApplication updateFeedbackApplication(Long feedbackApplicationId, Integer rating, String message,
+            OAuth2User principal) {
         User user = userService.getCurrentUser(principal);
-        if(user == null) {
-            throw new RuntimeException("User is not authenticated"); 
+        if (user == null) {
+            throw new UserNotAuthenticatedException("User is not authenticated");
         }
 
         FeedbackApplication feedbackApplication = getFeedbackApplicationById(feedbackApplicationId);
 
-        if(!feedbackApplication.getUser().getUserId().equals(user.getUserId())) {
-            throw new RuntimeException("You are not allowed to update this feedback");
+        if (!feedbackApplication.getUser().getUserId().equals(user.getUserId())) {
+            throw new UserForBiddenException("You are not allowed to update this feedback");
         }
 
-        if(rating != null) {
+        if (rating != null) {
             feedbackApplication.setRating(rating);
         }
-        if(message != null) {
+        if (message != null) {
             feedbackApplication.setComment(message);
         }
 
@@ -65,14 +69,14 @@ public class FeedbackApplicationService {
 
     public FeedbackApplication deleteFeedbackApplication(Long feedbackApplcationId, OAuth2User principal) {
         User user = userService.getCurrentUser(principal);
-        if(user == null) {
-            throw new RuntimeException("User is not authenticated"); 
+        if (user == null) {
+            throw new UserNotAuthenticatedException("User is not authenticated");
         }
 
         FeedbackApplication feedbackApplication = getFeedbackApplicationById(feedbackApplcationId);
 
-        if(!feedbackApplication.getUser().getUserId().equals(user.getUserId())) {
-            throw new RuntimeException("You are not allowed to delete this feedback");
+        if (!feedbackApplication.getUser().getUserId().equals(user.getUserId())) {
+            throw new UserForBiddenException("You are not allowed to delete this feedback");
         }
 
         feedbackApplicationRepository.delete(feedbackApplication);
