@@ -52,6 +52,7 @@ public class UserService {
         user.setLname(principal.getAttribute("family_name"));
         user.setProvider("Google");
         user.setProviderId(principal.getAttribute("sub"));
+        user.setRole("user");
 
         userRepository.save(user);
     }
