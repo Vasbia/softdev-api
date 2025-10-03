@@ -34,7 +34,7 @@ public class BusDriverService {
             Long busid = 1L;
             Map<String, Object> position = busService.showBusPosition(busid);
             Map<String, Object> ETAToNextStop = BusStopETAService.ETAToStop(busid, 4L);
-            Long ETA = (Long) ETAToNextStop.get("eta_seconds");
+            double ETA = (double) ETAToNextStop.get("eta_seconds");
             LocalTime schedule_time = busScheduleService.findBusScheduleTime(busid, 4L, 2);
             Map<String, Object> status = compareSchedule(schedule_time, ETA);
             
@@ -49,9 +49,9 @@ public class BusDriverService {
         throw new RuntimeException("Unauthorized request");
     }
 
-    public Map<String, Object> compareSchedule(LocalTime schedule_time, Long ETA){
+    public Map<String, Object> compareSchedule(LocalTime schedule_time, double ETA){
         LocalTime currentTime = LocalTime.now();
-        LocalTime estimateArrivalTime = currentTime.plusSeconds(ETA);
+        LocalTime estimateArrivalTime = currentTime.plusSeconds((long) ETA);
         if (estimateArrivalTime.isAfter(schedule_time.plusSeconds(30))){
             return Map.of(
                 "status", DrivingStatus.LATE,

@@ -6,5 +6,5 @@ import lombok.Data;
 public class BusStopETADTO {
     private Long bus_id;
     private Long stop_id;
-    private Long eta_seconds;
+    private double eta_seconds;
 }
