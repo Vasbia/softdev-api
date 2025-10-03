@@ -5,18 +5,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import com.softdev.softdev.dto.notification.NotificationDTO;
 import com.softdev.softdev.entity.Bus;
+import com.softdev.softdev.entity.BusStop;
 import com.softdev.softdev.entity.Notification;
 import com.softdev.softdev.entity.User;
-import com.softdev.softdev.entity.BusStop;
 import com.softdev.softdev.repository.NotificationRepository;
-
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-
-import com.softdev.softdev.dto.notification.NotificationDTO;
 
 @Service
 public class NotificationService {
@@ -27,13 +24,20 @@ public class NotificationService {
     private BusService busService;
 
     @Autowired
+    private BusStopETAService busStopETAService;
+
+    @Autowired
     private NotificationRepository notificationRepository;
+
+
+    @Autowired
+    private BusScheduleService busScheduleService;
 
     @Autowired
     private BusStopService busStopService;
 
 
-    public Notification CreateNotification(String title, String message, Long bus_stop_id ,Long bus_id,OAuth2User principal) {
+    public Notification CreateNotificationTrackBusStop( Long bus_stop_id ,Long bus_id, OAuth2User principal, Long before_minutes ) {
 
         Bus bus = busService.getBusById(bus_id);
         if (bus == null) {
@@ -48,14 +52,28 @@ public class NotificationService {
             throw new RuntimeException("BusStop not found for busStopId: " + bus_stop_id);
         }
 
+        // Integer currentBusRound = busService.getCurrentRound(bus_id);
+        Integer currentBusRound = 2;
+
+        LocalTime arriveTime = busScheduleService.findBusScheduleTime(bus_id, bus_stop_id, currentBusRound);
+        // LocalTime arriveTime = LocalTime.now().plusMinutes(10);
+
+        if (arriveTime == null) {
+            throw new RuntimeException("Arrive time not found for busId: " + bus_id  + ", busStopId: " + bus_stop_id + ", round: " + currentBusRound);
+        }
+
+        LocalTime timeToSend = arriveTime.minusMinutes(before_minutes);
+
+        
+
         Notification notification = new Notification();
-        notification.setTitle(title);
-        notification.setMessage(message);
+        notification.setTitle("x ");
+        notification.setMessage("x ");
         notification.setBus(bus); 
-        notification.setTimeToSend(LocalTime.now());
+        notification.setTimeToSend(timeToSend);
         notification.setUser(user);
         notification.setBusStop(busStop);
-        notification.setIsActive(true);
+        notification.setIsActive(false);
 
         return notificationRepository.save(notification);
     }

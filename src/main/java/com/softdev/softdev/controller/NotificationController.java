@@ -1,33 +1,25 @@
 package com.softdev.softdev.controller;
 
-import org.apache.catalina.User;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.softdev.softdev.service.NotificationService;
-import com.softdev.softdev.service.UserService;
-
-import jakarta.validation.Valid;
-
-import java.util.List;
-
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.softdev.softdev.dto.APIResponseDTO;
 import com.softdev.softdev.dto.notification.CreateNotificationDTO;
 import com.softdev.softdev.dto.notification.NotificationDTO;
 import com.softdev.softdev.entity.Notification;
+import com.softdev.softdev.service.NotificationService;
+import com.softdev.softdev.service.UserService;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import com.nimbusds.oauth2.sdk.Response;
+import jakarta.validation.Valid;
 
 
 
@@ -48,12 +40,11 @@ public class NotificationController {
     )
     {
         
-        Notification notification = notificationService.CreateNotification(
-            createNotificationDTO.getTitle(),
-            createNotificationDTO.getMessage(),
+        Notification notification = notificationService.CreateNotificationTrackBusStop(
             createNotificationDTO.getBus_stop_id(),
             createNotificationDTO.getBus_id(),
-            principal
+            principal,
+            createNotificationDTO.getTimeToNotify()
         );
 
         NotificationDTO notificationDTO = notificationService.toDto(notification);
