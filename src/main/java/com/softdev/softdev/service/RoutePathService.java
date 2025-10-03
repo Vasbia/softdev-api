@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.softdev.softdev.entity.RoutePath;
+import com.softdev.softdev.exception.ResourceNotFoundException;
 import com.softdev.softdev.repository.RoutePathRepository;
 
 @Service
@@ -18,7 +19,7 @@ public class RoutePathService {
     private GeolocationService geolocationService;
 
     public List<RoutePath> findRoutePathByRouteId(Long routeId) {
-        return routePathRepository.findAllByRouteRouteId(routeId).orElseThrow(() -> new RuntimeException("RoutePath not found for routeId: " + routeId));
+        return routePathRepository.findAllByRouteRouteId(routeId).orElseThrow(() -> new ResourceNotFoundException("Route paths not found for routeId: " + routeId));
     }
 
     public List<Double> getCumulativeDistance(List<RoutePath> routePaths) {

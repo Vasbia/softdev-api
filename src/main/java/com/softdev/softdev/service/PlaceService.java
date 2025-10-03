@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.softdev.softdev.dto.place.PlaceDTO;
 import com.softdev.softdev.entity.BusStop;
 import com.softdev.softdev.entity.Place;
+import com.softdev.softdev.exception.ResourceNotFoundException;
 import com.softdev.softdev.repository.PlaceRepository;
 
 @Service
@@ -23,15 +24,15 @@ public class PlaceService {
     private BusStopService busStopService;
 
     public Place getPlaceById(Long placeId) {
-        return placeRepository.findById(placeId).orElseThrow(() -> new RuntimeException("Place not found for placeId: " + placeId));
+        return placeRepository.findById(placeId).orElseThrow(() -> new ResourceNotFoundException("Place not found with id: " + placeId));
     }
 
     public List<Place> getPlaceByRouteId(Long routeId) {
-        return placeRepository.findAllByBusStopRouteRouteId(routeId).orElseThrow(() -> new RuntimeException("Place not found for routeId: " + routeId));
+        return placeRepository.findAllByBusStopRouteRouteId(routeId).orElseThrow(() -> new ResourceNotFoundException("Place not found for routeId: " + routeId));
     }
 
     public List<Place> getPlaceByStopId(Long stopId) {
-        return placeRepository.findAllByBusStopBusStopId(stopId).orElseThrow(() -> new RuntimeException("Place not found for stopId: " + stopId));
+        return placeRepository.findAllByBusStopBusStopId(stopId).orElseThrow(() -> new ResourceNotFoundException("Place not found for stopId: " + stopId));
     }
 
     public List<Place> findNearByPlace(Double userLatitude, Double userLongitude, Long routeId) {
@@ -39,7 +40,7 @@ public class PlaceService {
 
         BusStop nearestBusStop = busStops.stream()
             .min(Comparator.comparingDouble(busStop -> geolocationService.haversine(userLatitude, userLongitude, busStop.getGeoLocation().getLatitude(), busStop.getGeoLocation().getLongitude())))
-            .orElseThrow(() -> new RuntimeException("No busStops found"));
+            .orElseThrow(() -> new ResourceNotFoundException("No bus stops found for routeId: " + routeId));
         
         List<Place> nearByPlace = getPlaceByStopId(nearestBusStop.getBusStopId());
 

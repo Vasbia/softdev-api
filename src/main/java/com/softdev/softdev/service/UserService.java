@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.softdev.softdev.dto.User.UserDTO;
 import com.softdev.softdev.entity.User;
+import com.softdev.softdev.exception.ResourceNotFoundException;
 import com.softdev.softdev.repository.UserRepository;
 
 @Service
@@ -16,7 +17,7 @@ public class UserService {
     private UserRepository userRepository;
 
     public User getUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found for userId: " + userId));
+        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
     }
     
     public boolean isUserExists(String email) {

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.softdev.softdev.dto.APIResponseDTO;
-import com.softdev.softdev.dto.feedback_bus.FeedbackBusDTO;
 import com.softdev.softdev.dto.feedback_place.CreateFeedbackPlaceDTO;
 import com.softdev.softdev.dto.feedback_place.FeedbackPlaceDTO;
 import com.softdev.softdev.dto.feedback_place.UpdateFeedbackPlaceDTO;

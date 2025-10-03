@@ -10,6 +10,9 @@ import com.softdev.softdev.dto.feedback_bus.FeedbackBusDTO;
 import com.softdev.softdev.entity.Bus;
 import com.softdev.softdev.entity.FeedbackBus;
 import com.softdev.softdev.entity.User;
+import com.softdev.softdev.exception.ResourceNotFoundException;
+import com.softdev.softdev.exception.user.UserForBiddenException;
+import com.softdev.softdev.exception.user.UserNotAuthenticatedException;
 import com.softdev.softdev.repository.FeedbackBusRepository;
 
 @Service
@@ -22,16 +25,16 @@ public class FeedbackBusService {
 
     @Autowired
     private BusService busService;
-    
-    public FeedbackBus createFeedbackBus(Integer rating, String message, OAuth2User principal, Long busId ) {
+
+    public FeedbackBus createFeedbackBus(Integer rating, String message, OAuth2User principal, Long busId) {
         User user = userService.getCurrentUser(principal);
-        if(user == null) {
-            throw new RuntimeException("User is not authenticated");
+        if (user == null) {
+            throw new UserNotAuthenticatedException("User is not authenticated");
         }
 
         Bus bus = busService.getBusById(busId);
         if (bus == null) {
-            throw new RuntimeException("Bus not found for busId: " + busId);
+            throw new ResourceNotFoundException("Bus not found with id: " + busId);
         }
 
         FeedbackBus feedbackBus = new FeedbackBus();
@@ -42,36 +45,35 @@ public class FeedbackBusService {
 
         return feedbackBusRepository.save(feedbackBus);
     }
-    
+
     public FeedbackBus getFeedbackBusById(Long feedbackBusId) {
-        FeedbackBus feedbackBus = feedbackBusRepository.findById(feedbackBusId)
-                .orElseThrow(() -> new RuntimeException("FeedbackBus not found for feedbackBusId: " + feedbackBusId));
+        FeedbackBus feedbackBus = feedbackBusRepository.findById(feedbackBusId).orElseThrow(() -> new ResourceNotFoundException("FeedbackBus not found with id: " + feedbackBusId));
+        
         return feedbackBus;
     }
 
     public List<FeedbackBus> getAllFeedbackBus(Long busId) {
-        List<FeedbackBus> feedbackBuses = feedbackBusRepository.findAllByBusBusId(busId)
-                .orElseThrow(() -> new RuntimeException("No FeedbackBus found for busId: " + busId));
-        
+        List<FeedbackBus> feedbackBuses = feedbackBusRepository.findAllByBusBusId(busId).orElseThrow(() -> new ResourceNotFoundException("No feedback found for busId: " + busId));
+
         return feedbackBuses;
     }
 
     public FeedbackBus updateFeedbackBus(Long feedbackBusId, Integer rating, String message, OAuth2User principal) {
         User user = userService.getCurrentUser(principal);
-        if(user == null) {
-            throw new RuntimeException("User is not authenticated"); 
+        if (user == null) {
+            throw new UserNotAuthenticatedException("User is not authenticated");
         }
 
         FeedbackBus feedbackBus = getFeedbackBusById(feedbackBusId);
 
-        if(!feedbackBus.getUser().getUserId().equals(user.getUserId())) {
-            throw new RuntimeException("You are not allowed to update this feedback");
+        if (!feedbackBus.getUser().getUserId().equals(user.getUserId())) {
+            throw new UserForBiddenException("You are not allowed to update this feedback");
         }
 
-        if(rating != null) {
+        if (rating != null) {
             feedbackBus.setRating(rating);
         }
-        if(message != null) {
+        if (message != null) {
             feedbackBus.setComment(message);
         }
 
@@ -80,14 +82,14 @@ public class FeedbackBusService {
 
     public FeedbackBus deleteFeedbackBus(Long feedbackBusId, OAuth2User principal) {
         User user = userService.getCurrentUser(principal);
-        if(user == null) {
-            throw new RuntimeException("User is not authenticated"); 
+        if (user == null) {
+            throw new UserNotAuthenticatedException("User is not authenticated");
         }
 
         FeedbackBus feedbackBus = getFeedbackBusById(feedbackBusId);
 
-        if(!feedbackBus.getUser().getUserId().equals(user.getUserId())) {
-            throw new RuntimeException("You are not allowed to delete this feedback");
+        if (!feedbackBus.getUser().getUserId().equals(user.getUserId())) {
+            throw new UserForBiddenException("You are not allowed to delete this feedback");
         }
 
         feedbackBusRepository.delete(feedbackBus);
@@ -108,6 +110,5 @@ public class FeedbackBusService {
     public List<FeedbackBusDTO> toDtoList(List<FeedbackBus> feedbackBuses) {
         return feedbackBuses.stream().map(this::toDto).toList();
     }
-
 
 }
