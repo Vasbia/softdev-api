@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.softdev.softdev.dto.bus_driver.BusStatusDTO;
+import com.softdev.softdev.repository.BusDriverRepositiory;
 import com.softdev.softdev.repository.UserRepository;
 
 import net.minidev.json.parser.ParseException;
@@ -25,13 +26,16 @@ public class BusDriverService {
     @Autowired
     private BusStopETAService BusStopETAService;
 
+    @Autowired
+    private BusDriverRepositiory busDriverRepositiory;
+
     public  boolean isBusDriver(Long userId) {
         return userRepository.findById(userId).map(user -> "BUS_DRIVER".equals(user.getRole())).orElse(false);
     }
 
     public Map<String, Object> getDrivingStatus(Long userId) throws ParseException{
         if (isBusDriver(userId)){
-            Long busid = 1L;
+            long busid = busDriverRepositiory.findByUserId(userId).getBusId();
             Map<String, Object> position = busService.showBusPosition(busid);
             long nextStopId = (long) position.get("nextStop");
             if (nextStopId == 0){
