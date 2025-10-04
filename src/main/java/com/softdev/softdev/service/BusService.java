@@ -84,6 +84,7 @@ public class BusService {
         }
 
         LocalTime startTime = null;
+        Integer currentRound = null;
         for (BusSchedule schedule : busSchedules) {
             if (schedule.getScheduleOrder() == 1) {
                 for (BusSchedule sch : busSchedules) {
@@ -91,6 +92,7 @@ public class BusService {
                         if ((schedule.getArriveTime().isBefore(LocalTime.now()) || schedule.getArriveTime().equals(LocalTime.now())) && 
                         (sch.getArriveTime().isAfter(LocalTime.now()) || sch.getArriveTime().equals(LocalTime.now()))) {
                             startTime = schedule.getArriveTime();
+                            currentRound = schedule.getRound();
                             break;
                         }
                     }
@@ -111,6 +113,8 @@ public class BusService {
         long dwellTime = 15;
         long totalPauseTime = 0;
 
+        long nextStop = 0;
+
         for (int i = 0; i < busStopDistances.size(); i++) {
             double stopDistance = busStopDistances.get(i);
             double timeToReachStop = stopDistance / BUS_SPEED_MS + totalPauseTime;
@@ -122,10 +126,16 @@ public class BusService {
                 longitude = stop.getGeoLocation().getLongitude();
                 isStopped = true;
 
+                if (i + 1 < busStops.size()) {
+                    nextStop = busStops.get(i + 1).getBusStopId();
+                }
+
                 return Map.of(
                     "latitude", latitude,
                     "longitude", longitude,
-                    "isStopped", isStopped
+                    "isStopped", isStopped,
+                    "currentRound", currentRound,
+                    "nextStop", nextStop
                 );
             }
 
@@ -152,10 +162,19 @@ public class BusService {
                                 - routePaths.get(i).getGeoLocation().getLongitude()) * ratio;
                 isStopped = false;
 
+                for (int j = 0; j < busStopDistances.size(); j++) {
+                    if (traveledDistance < busStopDistances.get(j)) {
+                        nextStop = busStops.get(j).getBusStopId();
+                        break;
+                    }
+                }
+
                 return Map.of(
                     "latitude", latitude,
                     "longitude", longitude,
-                    "isStopped", isStopped
+                    "isStopped", isStopped,
+                    "currentRound", currentRound,
+                    "nextStop", nextStop
                 );
             }
         }

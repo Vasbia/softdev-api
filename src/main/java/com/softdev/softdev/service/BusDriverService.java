@@ -33,9 +33,19 @@ public class BusDriverService {
         if (isBusDriver(userId)){
             Long busid = 1L;
             Map<String, Object> position = busService.showBusPosition(busid);
-            Map<String, Object> ETAToNextStop = BusStopETAService.ETAToStop(busid, 4L);
+            long nextStopId = (long) position.get("nextStop");
+            if (nextStopId == 0){
+                return Map.of(
+                    "latitude", position.get("latitude"),
+                    "longitude", position.get("longitude"),
+                    "isStopped", position.get("isStopped"),
+                    "status", DrivingStatus.REST,
+                    "difference_seconds", 0
+                );
+            }
+            Map<String, Object> ETAToNextStop = BusStopETAService.ETAToStop(busid, (long) position.get("nextStop"));
             double ETA = (double) ETAToNextStop.get("eta_seconds");
-            LocalTime schedule_time = busScheduleService.findBusScheduleTime(busid, 4L, 2);
+            LocalTime schedule_time = busScheduleService.findBusScheduleTime(busid, (long) position.get("nextStop"), (Integer) position.get("currentRound"));
             Map<String, Object> status = compareSchedule(schedule_time, ETA);
             
             return Map.of(
@@ -83,6 +93,7 @@ public class BusDriverService {
     public enum DrivingStatus{
         LATE,
         ONTIME,
-        EARLY
+        EARLY,
+        REST
     }
 }
