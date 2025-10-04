@@ -46,28 +46,5 @@ public class UserController {
 
         return token;
     }
-
-    @PostMapping("/createUser")
-    public UserDTO createUser(
-        @Valid @ModelAttribute CreateUserDTO createUserDTO
-     )
-    {
-
-        System.out.println("kuyyy2");
-
-        User user = userService.CreateUser(
-            createUserDTO.getFname(),
-            createUserDTO.getLname(),
-            createUserDTO.getEmail(),
-            createUserDTO.getRole(),
-            createUserDTO.getKey()
-
-        );
-
-        UserDTO userDTO = userService.toDto(user);
-
-        return userDTO;
-
-    }
     
 }

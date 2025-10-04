@@ -19,17 +19,13 @@ public class SecurityConfig {
             // or, to ignore only some paths:
             // .csrf(csrf -> csrf.ignoringRequestMatchers(new AntPathRequestMatcher("/api/**")))
             .cors(Customizer.withDefaults())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/public/**",
-                    "/v3/api-docs/**",
-                    "/swagger-ui/**"
-                ).permitAll()
-                .anyRequest().authenticated()
-            )
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+
+            // .httpBasic(Customizer.withDefaults());
+
             // keep these only if you actually use OAuth2 login/client
-            .oauth2Login(Customizer.withDefaults())
-            .oauth2Client(Customizer.withDefaults());
+            // .oauth2Login(Customizer.withDefaults())
+            // .oauth2Client(Customizer.withDefaults());
 
         return http.build();
     }
