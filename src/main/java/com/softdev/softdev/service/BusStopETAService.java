@@ -12,7 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.softdev.softdev.dto.busstop.BusStopETADTO;
+import com.softdev.softdev.entity.Bus;
+import com.softdev.softdev.entity.BusSchedule;
 import com.softdev.softdev.entity.BusStop;
+import com.softdev.softdev.entity.RoutePath;
 
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -27,11 +30,17 @@ public class BusStopETAService {
     @Autowired
     private BusStopService busStopService;
 
+    @Autowired
+    private RoutePathService routePathService;
+
+    @Autowired
+    private GeolocationService geolocationService;
+
     public BusStopETADTO toDto(Map<String, Object> busStopETA) {
         BusStopETADTO dto = new BusStopETADTO();
         dto.setBus_id((Long) busStopETA.get("bus_id"));
         dto.setStop_id((Long) busStopETA.get("stop_id"));
-        dto.setEta_seconds(((Number) busStopETA.get("eta_seconds")).doubleValue());
+        dto.setEta_seconds(((double) busStopETA.get("eta_seconds")));
         return dto;
     }
 
@@ -66,7 +75,7 @@ public class BusStopETAService {
                 JSONArray routes = (JSONArray) obj.get("routes");
                 if (routes != null && !routes.isEmpty()) {
                     JSONObject route = (JSONObject) routes.get(0);
-                    double durationSeconds = ((Number) route.get("duration")).doubleValue();
+                    double durationSeconds = ((double) route.get("duration"));
                     return Map.of(
                             "bus_id", busId,
                             "stop_id", stopId,
@@ -77,7 +86,7 @@ public class BusStopETAService {
 
         }
 
-        throw new RuntimeException("Failed to fetch ETA from OSRM API: maybe due to rate limit");
+        throw new RuntimeException("Failed to fetch ETA from OSRM API and fallback");
     }
 
     public List<Map<String, Object>> ETAToAllStop(Long busId) {
