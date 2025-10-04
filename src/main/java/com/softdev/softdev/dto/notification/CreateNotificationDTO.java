@@ -17,5 +17,8 @@ public class CreateNotificationDTO {
     @NotNull(message="time to notify is required")
     private Long timeToNotify;
 
+    @NotNull(message = "token is required")
+    private String token;
+
 
 }

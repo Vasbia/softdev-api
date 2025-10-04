@@ -1,16 +1,19 @@
 package com.softdev.softdev.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.softdev.softdev.dto.User.UserDTO;
+import com.softdev.softdev.dto.auth.CreateUserDTO;
 import com.softdev.softdev.entity.User;
 import com.softdev.softdev.service.UserService;
+
+import jakarta.validation.Valid;
 
 
 @RestController
@@ -21,8 +24,8 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/current_user_info")
-    public UserDTO getCurrentUserInfo(@AuthenticationPrincipal OAuth2User principal) {
-        User user = userService.getCurrentUser(principal);
+    public UserDTO getCurrentUserInfo(String token) {
+        User user = userService.getCurrentUser(token);
         return userService.toDto(user);
     }
     
@@ -36,4 +39,35 @@ public class UserController {
     public String securedEndpoint() {
         return "This is a secured endpoint!";   
     }
+
+    @GetMapping("/genToken")
+    public String getMethodName(@RequestParam String email) {
+        String token = userService.GenToken(email);
+
+        return token;
+    }
+
+    @PostMapping("/createUser")
+    public UserDTO createUser(
+        @Valid @ModelAttribute CreateUserDTO createUserDTO
+     )
+    {
+
+        System.out.println("kuyyy2");
+
+        User user = userService.CreateUser(
+            createUserDTO.getFname(),
+            createUserDTO.getLname(),
+            createUserDTO.getEmail(),
+            createUserDTO.getRole(),
+            createUserDTO.getKey()
+
+        );
+
+        UserDTO userDTO = userService.toDto(user);
+
+        return userDTO;
+
+    }
+    
 }

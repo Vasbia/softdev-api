@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.softdev.softdev.dto.notification.NotificationDTO;
@@ -37,13 +36,13 @@ public class NotificationService {
     private BusStopService busStopService;
 
 
-    public Notification CreateNotificationTrackBusStop( Long bus_stop_id ,Long bus_id, OAuth2User principal, Long before_minutes ) {
+    public Notification CreateNotificationTrackBusStop( Long bus_stop_id ,Long bus_id, String token, Long before_minutes ) {
 
         Bus bus = busService.getBusById(bus_id);
         if (bus == null) {
             throw new RuntimeException("Bus not found for busId: " + bus_id);
         }
-        User user = userService.getCurrentUser(principal);
+        User user = userService.getCurrentUser(token);
         if (user == null) {
             throw new RuntimeException("User is not authenticated");
         }
@@ -109,8 +108,8 @@ public class NotificationService {
         return notificationRepository.saveAll(updatedNotifications);
     }
 
-    public List<Notification> getNotifications(OAuth2User principal) {
-        User user = userService.getCurrentUser(principal);
+    public List<Notification> getNotifications(String token) {
+        User user = userService.getCurrentUser(token);
         return notificationRepository.findByUser_UserIdAndIsActive(user.getUserId(), true);
     }
 
@@ -128,8 +127,8 @@ public class NotificationService {
         return notifications.stream().map(this::toDto).toList();
     }
 
-    public Integer countActiveNotification(OAuth2User principal) {
-        User user = userService.getCurrentUser(principal);
+    public Integer countActiveNotification(String token) {
+        User user = userService.getCurrentUser(token);
         List<Notification> notifications = notificationRepository.findByUser_UserIdAndIsActive(user.getUserId(), true);
 
         return notifications.size();

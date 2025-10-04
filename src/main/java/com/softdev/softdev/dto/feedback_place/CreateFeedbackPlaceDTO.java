@@ -18,4 +18,7 @@ public class CreateFeedbackPlaceDTO {
 
     
     private String comment;
+
+    @NotNull(message = "token is required")
+    private String token;
 }

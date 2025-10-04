@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -40,14 +38,14 @@ public class FeedbackBusController {
 
     @PostMapping("/createFeedbackBus")
     public ResponseEntity<?> createFeedbackBus(
-        @AuthenticationPrincipal OAuth2User principal,
+
         @Valid @ModelAttribute CreateFeedbackBusDTO createFeedbackBusDTO
     )
     {
         FeedbackBus feedbackBus = feedbackBusService.createFeedbackBus(
             createFeedbackBusDTO.getRating(),
             createFeedbackBusDTO.getComment(),
-            principal,
+            createFeedbackBusDTO.getToken(),
             createFeedbackBusDTO.getBusId()
         );
 
@@ -62,7 +60,6 @@ public class FeedbackBusController {
 
     @PutMapping("/updateFeedbackBus")
      public ResponseEntity<?> UpdateFeedbackBus(
-        @AuthenticationPrincipal OAuth2User principal,
         @Valid @ModelAttribute UpdateFeedbackBusDTO UpdateFeedbackBusDTO 
      )
      {
@@ -70,7 +67,8 @@ public class FeedbackBusController {
             UpdateFeedbackBusDTO.getFeedbackBusId(),
             UpdateFeedbackBusDTO.getRating(),
             UpdateFeedbackBusDTO.getComment(),
-            principal
+            UpdateFeedbackBusDTO.getToken()
+        
         );
 
         FeedbackBusDTO feedbackBusDTO = feedbackBusService.toDto(feedbackBus);
@@ -91,10 +89,10 @@ public class FeedbackBusController {
     @DeleteMapping("/{feedbackBusId}")
     public FeedbackBusDTO deleteFeedbackBus(
         @PathVariable Long feedbackBusId,
-        @AuthenticationPrincipal OAuth2User principal
+        String token
     ) 
     {
-        FeedbackBus feedbackBus = feedbackBusService.deleteFeedbackBus(feedbackBusId, principal);
+        FeedbackBus feedbackBus = feedbackBusService.deleteFeedbackBus(feedbackBusId, token);
 
         return feedbackBusService.toDto(feedbackBus);
     } 

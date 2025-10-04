@@ -13,4 +13,7 @@ public class CreateFeedbackApplicationDTO {
     private Integer rating;
 
     private String comment;
+
+    @NotNull(message = "token is required")
+    private String token;
 }

@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -33,7 +31,7 @@ public class FeedbackPlaceController {
 
     @PostMapping("/createFeedbackPlace")
     public ResponseEntity<?> createFeedbackPlace(
-        @AuthenticationPrincipal OAuth2User principal,
+     
         @Valid @ModelAttribute CreateFeedbackPlaceDTO createFeedbackPlaceDTO
     )
     {
@@ -41,7 +39,7 @@ public class FeedbackPlaceController {
             createFeedbackPlaceDTO.getPlaceId(),
             createFeedbackPlaceDTO.getRating(),
             createFeedbackPlaceDTO.getComment(),
-            principal
+            createFeedbackPlaceDTO.getToken()     
         );
 
         FeedbackPlaceDTO feedbackPlaceDTO = feedbackPlaceService.toDto(feedbackPlace);
@@ -66,7 +64,6 @@ public class FeedbackPlaceController {
 
     @PutMapping("/updateFeedbackPlace")
     public ResponseEntity<?> updateFeedbackPlace(
-        @AuthenticationPrincipal OAuth2User principal,
         @Valid @ModelAttribute UpdateFeedbackPlaceDTO updateFeedbackPlaceDTO
     )
     {
@@ -74,7 +71,8 @@ public class FeedbackPlaceController {
             updateFeedbackPlaceDTO.getFeedbackPlaceId(),
             updateFeedbackPlaceDTO.getRating(),
             updateFeedbackPlaceDTO.getComment(),
-            principal
+            updateFeedbackPlaceDTO.getToken()
+
         );
 
         FeedbackPlaceDTO feedbackPlaceDTO = feedbackPlaceService.toDto(feedbackPlace);
@@ -90,9 +88,9 @@ public class FeedbackPlaceController {
     @DeleteMapping("/{feedbackId}")
     public FeedbackPlaceDTO deleteFeedback(
         Long feedbackId,
-        @AuthenticationPrincipal OAuth2User principal
+        String token
     )
     {
-        return feedbackPlaceService.toDto(feedbackPlaceService.deleteFeedback(feedbackId, principal));
+        return feedbackPlaceService.toDto(feedbackPlaceService.deleteFeedback(feedbackId, token));
     }
 }

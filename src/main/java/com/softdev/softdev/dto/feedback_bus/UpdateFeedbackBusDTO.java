@@ -17,4 +17,9 @@ public class UpdateFeedbackBusDTO {
 
     private String comment;
 
+    @NotNull(message = "token is required")
+    private String token;
+
+    
+
 }
