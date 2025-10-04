@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.nimbusds.jwt.JWT;
 import com.softdev.softdev.dto.User.UserDTO;
 import com.softdev.softdev.entity.User;
+import com.softdev.softdev.exception.ResourceNotFoundException;
 import com.softdev.softdev.repository.UserRepository;
 import com.softdev.softdev.security.jwtUtil;
 
@@ -39,7 +40,7 @@ public class AuthService {
             byte[] encodedHash = digest.digest(input.getBytes());
             return bytesToHex(encodedHash);
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error creating hash", e);
+            throw new ResourceNotFoundException("Error creating hash");
         }
     }
 
@@ -67,7 +68,7 @@ public class AuthService {
     public String login(String email, String password){
         User user = userRepository.findByEmail(email);
         if (user == null){
-            throw new RuntimeException("User not found");
+            throw new ResourceNotFoundException("User not found");
         }
 
         String salt = user.getSalt();
@@ -89,7 +90,7 @@ public class AuthService {
         }
 
 
-        throw new RuntimeException("Email or Password Invalid!");
+        throw new ResourceNotFoundException("Email or Password Invalid!");
     
     }
 
@@ -98,6 +99,10 @@ public class AuthService {
         if (key.equals(env.get("KEY_ADMIN"))){
 
             if (role.equals("USER") || role.equals("BUS_DRIVER")){
+
+                if (userRepository.existsByEmail(email)){
+                    throw new ResourceNotFoundException("Email already exists");
+                }
 
                 String salt = generateSalt();
                 String password_hash_salting = hash(password + salt);
@@ -116,7 +121,7 @@ public class AuthService {
             }
         }
 
-        return null;
+        throw new ResourceNotFoundException("Some thing went wrong!");
     }
 
     public UserDTO toDTO(User user){
