@@ -4,6 +4,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Map;
 
+import javax.swing.text.StyledEditorKit.BoldAction;
+
 import org.hibernate.cfg.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,9 +18,6 @@ import com.softdev.softdev.repository.UserRepository;
 import com.softdev.softdev.security.jwtUtil;
 
 import io.github.cdimascio.dotenv.Dotenv;
-
-import org.springframework.beans.factory.annotation.Value;
-
 @Service
 
 public class AuthService {
@@ -44,17 +43,18 @@ public class AuthService {
         }
     }
 
+    
     private static String bytesToHex(byte[] hash) {
         StringBuilder hexString = new StringBuilder(2 * hash.length);
         for (byte b : hash) {
             String hex = Integer.toHexString(0xff & b);
             if (hex.length() == 1)
-                hexString.append('0');
+            hexString.append('0');
             hexString.append(hex);
         }
         return hexString.toString();
     }
-
+    
     private String generateSalt(){
         StringBuilder salt = new StringBuilder(5);
         for (int i = 0; i < 6; i++) {

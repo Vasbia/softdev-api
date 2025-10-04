@@ -34,17 +34,5 @@ public class UserController {
         User user = userService.getUserByEmail(email);
         return userService.toDto(user);
     }
-
-    @GetMapping("/secure/test")
-    public String securedEndpoint() {
-        return "This is a secured endpoint!";   
-    }
-
-    @GetMapping("/genToken")
-    public String getMethodName(@RequestParam String email) {
-        String token = userService.GenToken(email);
-
-        return token;
-    }
     
 }

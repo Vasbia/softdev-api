@@ -16,8 +16,6 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    // @Autowired
-    // private jwtUtil jwt; 
 
     public User getUserById(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
@@ -33,11 +31,16 @@ public class UserService {
 
     public User getCurrentUser(String token) {
 
-        Map<String, Object> data = jwtUtil.extractToken(token);
-        String gmail = (String) data.get("gmail");
-        User user = userRepository.findByEmail(gmail);
+        if (jwtUtil.verifyJwt(token)){
 
-         return user;
+            Map<String, Object> data = jwtUtil.extractToken(token);
+            String gmail = (String) data.get("gmail");
+            User user = userRepository.findByEmail(gmail);
+    
+             return user;
+        }
+
+        throw new ResourceNotFoundException("Invalid Token!!");
         
     }
 
@@ -74,24 +77,6 @@ public class UserService {
         }
 
         return null;
-    }
-
-    public String GenToken(String email) {
-        Map<String, Object> payload = Map.of(
-            "sub", "pipatpong",
-            "user_id", "1",
-            "gmail" , email,
-            "iat", System.currentTimeMillis() / 1000
-        );
-
-        String secret = "MY_SUPER_SECRET_KEY"; // ✅ ลืมใส่ ; เดิม
-
-        // ✅ เรียก static method จาก jwtUtil โดยตรง
-        String token = jwtUtil.generateToken(payload, secret);
-
-        System.out.println(jwtUtil.extractToken(token));
-
-        return token; // ✅ ต้องอยู่ภายใน method
     }
 
 }

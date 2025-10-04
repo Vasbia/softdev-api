@@ -1,5 +1,7 @@
 package com.softdev.softdev.security;
 import java.nio.charset.StandardCharsets;
+import java.security.Signature;
+import java.time.format.SignStyle;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
@@ -8,7 +10,10 @@ import java.util.stream.Collectors;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
 public class jwtUtil {
+
     public static String generateToken(Map<String, Object> payload, String secret) {
         try {
             // Header: specify algorithm and type
@@ -44,18 +49,6 @@ public class jwtUtil {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
-    public static void main(String[] args) {
-        Map<String, Object> payload = Map.of(
-                "sub", "pipatpong",
-                "gmail", "pooh@gmail.com",
-                "user_id", "12345",
-                "iat", System.currentTimeMillis() / 1000
-        );
-        String secret = "MY_SUPER_SECRET_KEY";
-        String token = generateToken(payload, secret);
-        System.out.println(token);
-    }
-
     public static Map<String, Object> extractToken(String token) {
         // Split JWT into parts
         String[] parts = token.split("\\.");
@@ -82,4 +75,35 @@ public class jwtUtil {
 
         return payload;
     }
+
+    public static boolean verifyJwt(String token) {
+        Dotenv env = Dotenv.load();
+
+        String secret = env.get("JWT_SECRET_KEY");
+        try {
+            // Split into 3 parts: header.payload.signature
+            String[] parts = token.split("\\.");
+            if (parts.length != 3) return false;
+
+            String header = parts[0];
+            String payload = parts[1];
+            String signature = parts[2];
+
+            // Recalculate signature using secret key
+            String data = header + "." + payload;
+            String expectedSignature = hmacSha256(data, secret);
+
+            // Compare constant-time to prevent timing attacks
+            return expectedSignature.equals(signature);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static String decodePayload(String token) {
+        String[] parts = token.split("\\.");
+        if (parts.length < 2) return null;
+        return new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+    }
+
 }
