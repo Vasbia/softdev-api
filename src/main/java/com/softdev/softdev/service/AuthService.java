@@ -79,11 +79,10 @@ public class AuthService {
                 "sub", user.getFname() + " " + user.getLname() ,
                 "user_id", user.getUserId(),
                 "gmail" , user.getEmail(),
-                "iat", System.currentTimeMillis() / 1000
+                "iat", System.currentTimeMillis() / 1000 + (3600*3) // 3 hour expiration
             );
 
             String secret = env.get("JWT_SECRET_KEY");
-            System.out.println("Secret Key: " + secret); // Debug line to check the secret key
             String token = jwtUtil.generateToken(payload, secret);
 
             return token;

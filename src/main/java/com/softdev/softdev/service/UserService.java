@@ -58,25 +58,4 @@ public class UserService {
         return userDTO;
     }
 
-    public User CreateUser(String fname , String lname, String email, String role , String key ){
-        System.out.println("kuyyy1");
-        if (key.equals("2137CE2A5D1394FAF693A5A3C4C7F")){
-
-            if (role.equals("user") || role.equals("bus_driver")){
-
-                User user = new User();
-                user.setEmail(email);
-                user.setLname(lname);
-                user.setFname(fname);
-                user.setRole(role);
-                
-                userRepository.save(user);
-
-                return user;
-            }
-        }
-
-        return null;
-    }
-
 }

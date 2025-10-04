@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.softdev.softdev.exception.ResourceNotFoundException;
+
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class jwtUtil {
@@ -31,7 +33,7 @@ public class jwtUtil {
 
             return header + "." + payloadEncoded + "." + signature;
         } catch (Exception e) {
-            throw new RuntimeException("Error generating JWT", e);
+            throw new ResourceNotFoundException("Error generating JWT");
         }
     }
 
@@ -53,7 +55,7 @@ public class jwtUtil {
         // Split JWT into parts
         String[] parts = token.split("\\.");
         if (parts.length != 3) {
-            throw new IllegalArgumentException("Invalid JWT token");
+            throw new ResourceNotFoundException("Invalid JWT token");
         }
 
         // Decode the payload (Base64 URL-safe)
@@ -88,6 +90,15 @@ public class jwtUtil {
             String header = parts[0];
             String payload = parts[1];
             String signature = parts[2];
+
+            Map<String, Object> content = jwtUtil.extractToken(token);
+            String iat = (String) content.get("iat");
+
+            Long current_time = System.currentTimeMillis()/1000;
+
+            if (current_time > Long.parseLong(iat)){
+                throw new ResourceNotFoundException("Token Expried");           
+            }
 
             // Recalculate signature using secret key
             String data = header + "." + payload;
