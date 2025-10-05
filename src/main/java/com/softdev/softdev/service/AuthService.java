@@ -15,6 +15,8 @@ import com.nimbusds.jwt.JWT;
 import com.softdev.softdev.dto.User.UserDTO;
 import com.softdev.softdev.entity.User;
 import com.softdev.softdev.exception.ResourceNotFoundException;
+import com.softdev.softdev.exception.user.UserForBiddenException;
+import com.softdev.softdev.exception.user.UserNotAuthenticatedException;
 import com.softdev.softdev.repository.UserRepository;
 import com.softdev.softdev.security.jwtUtil;
 
@@ -40,7 +42,7 @@ public class AuthService {
             byte[] encodedHash = digest.digest(input.getBytes());
             return bytesToHex(encodedHash);
         } catch (NoSuchAlgorithmException e) {
-            throw new ResourceNotFoundException("Error creating hash");
+            throw new UserNotAuthenticatedException("Error creating hash");
         }
     }
 
@@ -68,7 +70,7 @@ public class AuthService {
     public String login(String email, String password){
         User user = userRepository.findByEmail(email);
         if (user == null){
-            throw new ResourceNotFoundException("User not found");
+            throw new ResourceNotFoundException("User not found by this email");
         }
 
         String salt = user.getSalt();
@@ -90,7 +92,7 @@ public class AuthService {
         }
 
 
-        throw new ResourceNotFoundException("Email or Password Invalid!");
+        throw new UserNotAuthenticatedException("Email or Password Invalid!");
     
     }
 
@@ -101,7 +103,7 @@ public class AuthService {
             if (role.equals("USER") || role.equals("BUS_DRIVER")){
 
                 if (userRepository.existsByEmail(email)){
-                    throw new ResourceNotFoundException("Email already exists");
+                    throw new UserForBiddenException("Email already exists");
                 }
 
                 String salt = generateSalt();
