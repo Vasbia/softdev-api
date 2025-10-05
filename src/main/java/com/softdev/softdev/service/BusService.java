@@ -36,6 +36,37 @@ public class BusService {
         return busRepository.findById(busId).orElseThrow(() -> new ResourceNotFoundException("Bus not found with id: " + busId));
     }
 
+
+    public Integer getCurrentRound(Long busId){
+        List<BusSchedule> busSchedules = busScheduleService.findBusScheduleByBusId(busId);
+        if (busSchedules.isEmpty()) {
+            throw new RuntimeException("No bus schedules found for busId: " + busId);
+        }
+
+        LocalTime start = null;
+        Integer currentRound = null;
+        for (BusSchedule schedule : busSchedules) {
+            if (schedule.getScheduleOrder() == 1) {
+                for (BusSchedule sch : busSchedules) {
+                    if (sch.getRound() == schedule.getRound() && sch.getScheduleOrder() == 8) {
+                        if ((schedule.getArriveTime().isBefore(LocalTime.now()) || schedule.getArriveTime().equals(LocalTime.now()))
+                                && (sch.getArriveTime().isAfter(LocalTime.now()) || sch.getArriveTime().equals(LocalTime.now()))) {
+                            start = schedule.getArriveTime();
+                            currentRound = schedule.getRound();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (start == null) {
+            throw new RuntimeException("No active bus schedule found for busId: " + busId + " at current time");
+        }
+
+        return currentRound;
+    }
+
     public Map<String, Object> showBusPosition(Long busId) {
         Double latitude;
         Double longitude;
@@ -53,6 +84,7 @@ public class BusService {
         }
 
         LocalTime startTime = null;
+        Integer currentRound = null;
         for (BusSchedule schedule : busSchedules) {
             if (schedule.getScheduleOrder() == 1) {
                 for (BusSchedule sch : busSchedules) {
@@ -60,6 +92,7 @@ public class BusService {
                         if ((schedule.getArriveTime().isBefore(LocalTime.now()) || schedule.getArriveTime().equals(LocalTime.now())) && 
                         (sch.getArriveTime().isAfter(LocalTime.now()) || sch.getArriveTime().equals(LocalTime.now()))) {
                             startTime = schedule.getArriveTime();
+                            currentRound = schedule.getRound();
                             break;
                         }
                     }
@@ -80,6 +113,8 @@ public class BusService {
         long dwellTime = 15;
         long totalPauseTime = 0;
 
+        long nextStop = 0;
+
         for (int i = 0; i < busStopDistances.size(); i++) {
             double stopDistance = busStopDistances.get(i);
             double timeToReachStop = stopDistance / BUS_SPEED_MS + totalPauseTime;
@@ -91,10 +126,16 @@ public class BusService {
                 longitude = stop.getGeoLocation().getLongitude();
                 isStopped = true;
 
+                if (i + 1 < busStops.size()) {
+                    nextStop = busStops.get(i + 1).getBusStopId();
+                }
+
                 return Map.of(
                     "latitude", latitude,
                     "longitude", longitude,
-                    "isStopped", isStopped
+                    "isStopped", isStopped,
+                    "currentRound", currentRound,
+                    "nextStop", nextStop
                 );
             }
 
@@ -121,10 +162,19 @@ public class BusService {
                                 - routePaths.get(i).getGeoLocation().getLongitude()) * ratio;
                 isStopped = false;
 
+                for (int j = 0; j < busStopDistances.size(); j++) {
+                    if (traveledDistance < busStopDistances.get(j)) {
+                        nextStop = busStops.get(j).getBusStopId();
+                        break;
+                    }
+                }
+
                 return Map.of(
                     "latitude", latitude,
                     "longitude", longitude,
-                    "isStopped", isStopped
+                    "isStopped", isStopped,
+                    "currentRound", currentRound,
+                    "nextStop", nextStop
                 );
             }
         }
