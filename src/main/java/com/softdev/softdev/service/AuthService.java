@@ -4,14 +4,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Map;
 
-import javax.swing.text.StyledEditorKit.BoldAction;
-
-import org.hibernate.cfg.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.nimbusds.jwt.JWT;
 import com.softdev.softdev.dto.User.UserDTO;
 import com.softdev.softdev.entity.User;
 import com.softdev.softdev.exception.ResourceNotFoundException;
@@ -19,10 +15,7 @@ import com.softdev.softdev.exception.user.UserForBiddenException;
 import com.softdev.softdev.exception.user.UserNotAuthenticatedException;
 import com.softdev.softdev.repository.UserRepository;
 import com.softdev.softdev.security.jwtUtil;
-
-import io.github.cdimascio.dotenv.Dotenv;
 @Service
-
 public class AuthService {
     
     @Autowired
@@ -31,7 +24,12 @@ public class AuthService {
     @Autowired
     UserService userService;
 
-    Dotenv env = Dotenv.load();
+    @Value("${jwt.key_admin}")
+    private String keyAdmin;
+
+    @Value("${jwt.secret_key}")
+    private String secretKey;
+
 
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final SecureRandom random = new SecureRandom();
@@ -85,7 +83,7 @@ public class AuthService {
                 "iat", System.currentTimeMillis() / 1000 + (3600*3) // 3 hour expiration
             );
 
-            String secret = env.get("JWT_SECRET_KEY");
+            String secret = secretKey;
             String token = jwtUtil.generateToken(payload, secret);
 
             return token;
@@ -98,7 +96,7 @@ public class AuthService {
 
     public User createUser(String fname , String lname, String password ,String email, String role , String key ){
 
-        if (key.equals(env.get("KEY_ADMIN"))){
+        if (key.equals(keyAdmin)){
 
             if (role.equals("USER") || role.equals("BUS_DRIVER")){
 
