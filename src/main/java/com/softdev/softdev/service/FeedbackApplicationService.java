@@ -3,7 +3,6 @@ package com.softdev.softdev.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.softdev.softdev.dto.feedback_application.FeedbackApplicationDTO;
@@ -22,8 +21,8 @@ public class FeedbackApplicationService {
     @Autowired
     private UserService userService;
 
-    public FeedbackApplication createFeedbackApplication(Integer rating, String message, OAuth2User principal) {
-        User user = userService.getCurrentUser(principal);
+    public FeedbackApplication createFeedbackApplication(Integer rating, String message, String token) {
+        User user = userService.getCurrentUser(token);
         if (user == null) {
             throw new UserNotAuthenticatedException("User is not authenticated");
         }
@@ -45,8 +44,8 @@ public class FeedbackApplicationService {
     }
 
     public FeedbackApplication updateFeedbackApplication(Long feedbackApplicationId, Integer rating, String message,
-            OAuth2User principal) {
-        User user = userService.getCurrentUser(principal);
+            String token) {
+        User user = userService.getCurrentUser(token);
         if (user == null) {
             throw new UserNotAuthenticatedException("User is not authenticated");
         }
@@ -67,8 +66,8 @@ public class FeedbackApplicationService {
         return feedbackApplicationRepository.save(feedbackApplication);
     }
 
-    public FeedbackApplication deleteFeedbackApplication(Long feedbackApplcationId, OAuth2User principal) {
-        User user = userService.getCurrentUser(principal);
+    public FeedbackApplication deleteFeedbackApplication(Long feedbackApplcationId, String token) {
+        User user = userService.getCurrentUser(token);
         if (user == null) {
             throw new UserNotAuthenticatedException("User is not authenticated");
         }

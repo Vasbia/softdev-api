@@ -3,7 +3,6 @@ package com.softdev.softdev.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.softdev.softdev.dto.feedback_bus.FeedbackBusDTO;
@@ -26,8 +25,8 @@ public class FeedbackBusService {
     @Autowired
     private BusService busService;
 
-    public FeedbackBus createFeedbackBus(Integer rating, String message, OAuth2User principal, Long busId) {
-        User user = userService.getCurrentUser(principal);
+    public FeedbackBus createFeedbackBus(Integer rating, String message, String token, Long busId) {
+        User user = userService.getCurrentUser(token);
         if (user == null) {
             throw new UserNotAuthenticatedException("User is not authenticated");
         }
@@ -58,8 +57,8 @@ public class FeedbackBusService {
         return feedbackBuses;
     }
 
-    public FeedbackBus updateFeedbackBus(Long feedbackBusId, Integer rating, String message, OAuth2User principal) {
-        User user = userService.getCurrentUser(principal);
+    public FeedbackBus updateFeedbackBus(Long feedbackBusId, Integer rating, String message, String token) {
+        User user = userService.getCurrentUser(token);
         if (user == null) {
             throw new UserNotAuthenticatedException("User is not authenticated");
         }
@@ -80,8 +79,8 @@ public class FeedbackBusService {
         return feedbackBusRepository.save(feedbackBus);
     }
 
-    public FeedbackBus deleteFeedbackBus(Long feedbackBusId, OAuth2User principal) {
-        User user = userService.getCurrentUser(principal);
+    public FeedbackBus deleteFeedbackBus(Long feedbackBusId, String token) {
+        User user = userService.getCurrentUser(token);
         if (user == null) {
             throw new UserNotAuthenticatedException("User is not authenticated");
         }

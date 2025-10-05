@@ -3,7 +3,6 @@ package com.softdev.softdev.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.softdev.softdev.dto.feedback_place.FeedbackPlaceDTO;
@@ -28,8 +27,8 @@ public class FeedbackPlaceService {
     @Autowired
     private UserService userService;
 
-    public FeedbackPlace createFeedback(Long placeId, Integer rating, String comment, OAuth2User principal) {
-        User user = userService.getCurrentUser(principal);
+    public FeedbackPlace createFeedback(Long placeId, Integer rating, String comment, String token) {
+        User user = userService.getCurrentUser(token);
         if (user == null) {
             throw new UserNotAuthenticatedException("User is not authenticated");
         }
@@ -54,10 +53,10 @@ public class FeedbackPlaceService {
 
     }
 
-    public FeedbackPlace deleteFeedback(Long feedbackId, OAuth2User principal) {
+    public FeedbackPlace deleteFeedback(Long feedbackId, String token) {
         FeedbackPlace feedback = feedbackPlaceRepository.findById(feedbackId).orElseThrow(() -> new ResourceNotFoundException("Feedback not found with id: " + feedbackId));
 
-        User user = userService.getCurrentUser(principal);
+        User user = userService.getCurrentUser(token);
         if (user == null) {
             throw new UserNotAuthenticatedException("User is not authenticated");
         }
@@ -70,10 +69,10 @@ public class FeedbackPlaceService {
         return feedback;
     }
 
-    public FeedbackPlace updateFeedback(Long feedbackId, Integer rating, String comment, OAuth2User principal) {
+    public FeedbackPlace updateFeedback(Long feedbackId, Integer rating, String comment, String token) {
         FeedbackPlace feedback = feedbackPlaceRepository.findById(feedbackId).orElseThrow(() -> new ResourceNotFoundException("Feedback not found with id: " + feedbackId));
 
-        User user = userService.getCurrentUser(principal);
+        User user = userService.getCurrentUser(token);
 
         if (user == null) {
             throw new UserNotAuthenticatedException("User is not authenticated");

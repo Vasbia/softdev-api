@@ -1,20 +1,21 @@
 package com.softdev.softdev.service;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.softdev.softdev.dto.User.UserDTO;
 import com.softdev.softdev.entity.User;
 import com.softdev.softdev.exception.ResourceNotFoundException;
 import com.softdev.softdev.repository.UserRepository;
-
+import com.softdev.softdev.security.jwtUtil;
 @Service
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
 
     public User getUserById(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
@@ -28,34 +29,21 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public User getCurrentUser(@AuthenticationPrincipal OAuth2User principal) {
-        if(principal == null) {
-            return null;
+    public User getCurrentUser(String token) {
+
+        if (jwtUtil.verifyJwt(token)){
+
+            Map<String, Object> data = jwtUtil.extractToken(token);
+            String gmail = (String) data.get("gmail");
+            User user = userRepository.findByEmail(gmail);
+    
+             return user;
         }
-        String email = principal.getAttribute("email");
-        return userRepository.findByEmail(email);
+
+        throw new ResourceNotFoundException("Invalid Token!!");
+        
     }
 
-    public void CreateUser(@AuthenticationPrincipal OAuth2User principal){
-        if(principal == null) {
-            return;
-        }
-        String email = principal.getAttribute("email");
-        if(isUserExists(email)) {
-            return;
-        }
-
-        User user = new User();
-        user.setEmail(email);
-        user.setFname(principal.getAttribute("given_name"));
-        System.out.println("Family Name: " + principal.getAttribute("family_name"));
-        user.setLname(principal.getAttribute("family_name"));
-        user.setProvider("Google");
-        user.setProviderId(principal.getAttribute("sub"));
-        user.setRole("user");
-
-        userRepository.save(user);
-    }
 
     public UserDTO toDto(User user) {
         if (user == null) {
@@ -69,4 +57,5 @@ public class UserService {
         
         return userDTO;
     }
+
 }

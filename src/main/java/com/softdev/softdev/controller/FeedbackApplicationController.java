@@ -1,5 +1,15 @@
 package com.softdev.softdev.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -11,19 +21,6 @@ import com.softdev.softdev.entity.FeedbackApplication;
 import com.softdev.softdev.service.FeedbackApplicationService;
 
 import jakarta.validation.Valid;
-
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/api/feedback-application")
@@ -49,15 +46,13 @@ public class FeedbackApplicationController {
     @PostMapping()
     public ResponseEntity<?> createFeedbackApplication
     (
-        @Valid @ModelAttribute CreateFeedbackApplicationDTO createFeedbackApplicationDTO,
-        @AuthenticationPrincipal OAuth2User principal
-
+        @Valid @ModelAttribute CreateFeedbackApplicationDTO createFeedbackApplicationDTO
     ) 
     {
         FeedbackApplication feedbackaApplication = feedbackApplicationService.createFeedbackApplication(
             createFeedbackApplicationDTO.getRating(),
             createFeedbackApplicationDTO.getComment(),
-            principal
+            createFeedbackApplicationDTO.getToken()
         );
 
         FeedbackApplicationDTO feedbackApplicationDTO = feedbackApplicationService.toDto(feedbackaApplication);
@@ -71,15 +66,14 @@ public class FeedbackApplicationController {
 
     @PutMapping()
     public ResponseEntity<?> updateFeedbackApplication(
-        @Valid @ModelAttribute UpdateFeedbackApplicationDTO updateFeedbackApplicationDTO,
-        @AuthenticationPrincipal OAuth2User principal
+        @Valid @ModelAttribute UpdateFeedbackApplicationDTO updateFeedbackApplicationDTO
     ) 
     {
         FeedbackApplication feedbackaApplication = feedbackApplicationService.updateFeedbackApplication(
             updateFeedbackApplicationDTO.getFeedbackApplicationId(),
             updateFeedbackApplicationDTO.getRating(),
             updateFeedbackApplicationDTO.getComment(),
-            principal
+            updateFeedbackApplicationDTO.getToken()
         );
 
         FeedbackApplicationDTO feedbackApplicationDTO = feedbackApplicationService.toDto(feedbackaApplication);
@@ -94,12 +88,12 @@ public class FeedbackApplicationController {
     @DeleteMapping("/{feedbackApplicationId}")
     public ResponseEntity<?> deleteFeedbackApplication(
         @PathVariable Long feedbackApplicationId,
-        @AuthenticationPrincipal OAuth2User principal
+        String token
     ) 
     {
         FeedbackApplication feedbackaApplication = feedbackApplicationService.deleteFeedbackApplication(
             feedbackApplicationId,
-            principal
+            token
         );
 
         FeedbackApplicationDTO feedbackApplicationDTO = feedbackApplicationService.toDto(feedbackaApplication);

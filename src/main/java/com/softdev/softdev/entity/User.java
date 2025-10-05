@@ -19,13 +19,7 @@ public class User {
 
     @Column(name = "email")
     private String email;
-
-    @Column(name = "provider")
-    private String provider;
-
-    @Column(name = "provider_id")
-    private String providerId;
-
+    
     @Column(name = "fname")
     private String fname;
 
@@ -34,4 +28,10 @@ public class User {
 
     @Column(name = "role")
     private String role;
+
+    @Column(name = "salt")
+    private String salt;
+
+    @Column(name = "password")
+    private String password;
 }

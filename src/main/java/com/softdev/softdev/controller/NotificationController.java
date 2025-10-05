@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,7 +34,6 @@ public class NotificationController {
 
     @PostMapping("/TrackBusStop")
     public ResponseEntity<?> createNotification(
-        @AuthenticationPrincipal OAuth2User principal,
         @Valid @ModelAttribute CreateNotificationDTO createNotificationDTO
     )
     {
@@ -44,7 +41,7 @@ public class NotificationController {
         Notification notification = notificationService.CreateNotificationTrackBusStop(
             createNotificationDTO.getBus_stop_id(),
             createNotificationDTO.getBus_id(),
-            principal,
+            createNotificationDTO.getToken(),
             createNotificationDTO.getTimeToNotify()
         );
 
@@ -56,9 +53,9 @@ public class NotificationController {
     }
 
     @GetMapping("getNotification")
-    public List<NotificationDTO> getAllNotification( @AuthenticationPrincipal OAuth2User principal) {
+    public List<NotificationDTO> getAllNotification( String token ) {
 
-        List<Notification> notifications = notificationService.getNotifications(principal);
+        List<Notification> notifications = notificationService.getNotifications(token);
 
         return notificationService.toDtoList(notifications);
     }
@@ -74,8 +71,8 @@ public class NotificationController {
     }
     
     @GetMapping("/countNotification")
-    public Integer countNotification(@AuthenticationPrincipal OAuth2User principal) {
-        return notificationService.countActiveNotification(principal);
+    public Integer countNotification(String token) {
+        return notificationService.countActiveNotification(token);
     }
     
     

@@ -2,6 +2,7 @@ package com.softdev.softdev.dto.feedback_application;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
@@ -14,4 +15,7 @@ public class UpdateFeedbackApplicationDTO {
 
     private String comment;
     private Long currentUserId;
+
+    @NotNull(message = "token is required")
+    private String token;
 }
