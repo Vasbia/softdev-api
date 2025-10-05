@@ -2,6 +2,7 @@ package com.softdev.softdev.service;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,11 @@ import com.softdev.softdev.entity.Bus;
 import com.softdev.softdev.entity.BusStop;
 import com.softdev.softdev.entity.Notification;
 import com.softdev.softdev.entity.User;
+import com.softdev.softdev.exception.ResourceNotFoundException;
+import com.softdev.softdev.exception.user.UserNotAuthenticatedException;
 import com.softdev.softdev.repository.NotificationRepository;
+
+import net.minidev.json.parser.ParseException;
 
 @Service
 public class NotificationService {
@@ -35,41 +40,43 @@ public class NotificationService {
     @Autowired
     private BusStopService busStopService;
 
+    @Autowired
+    private BusDriverService busDriverService;
+
 
     public Notification CreateNotificationTrackBusStop( Long bus_stop_id ,Long bus_id, String token, Long before_minutes ) {
 
         Bus bus = busService.getBusById(bus_id);
         if (bus == null) {
-            throw new RuntimeException("Bus not found for busId: " + bus_id);
+            throw new ResourceNotFoundException("Bus not found for busId: " + bus_id);
         }
         User user = userService.getCurrentUser(token);
         if (user == null) {
-            throw new RuntimeException("User is not authenticated");
+            throw new UserNotAuthenticatedException("User is not authenticated");
         }
         BusStop busStop = busStopService.getBusStopById(bus_stop_id);
         if (busStop == null) {
-            throw new RuntimeException("BusStop not found for busStopId: " + bus_stop_id);
+            throw new ResourceNotFoundException("BusStop not found for busStopId: " + bus_stop_id);
         }
 
-        // Integer currentBusRound = busService.getCurrentRound(bus_id);
-        Integer currentBusRound = 2;
+        Integer currentBusRound = busService.getCurrentRound(bus_id);
+        // Integer currentBusRound = 2;
 
         LocalTime arriveTime = busScheduleService.findBusScheduleTime(bus_id, bus_stop_id, currentBusRound);
         // LocalTime arriveTime = LocalTime.now().plusMinutes(10);
 
         if (arriveTime == null) {
-            throw new RuntimeException("Arrive time not found for busId: " + bus_id  + ", busStopId: " + bus_stop_id + ", round: " + currentBusRound);
+            throw new ResourceNotFoundException("Arrive time not found for busId: " + bus_id  + ", busStopId: " + bus_stop_id + ", round: " + currentBusRound);
         }
 
         LocalTime timeToSend = arriveTime.minusMinutes(before_minutes);
 
-        
-
         Notification notification = new Notification();
-        notification.setTitle("x ");
-        notification.setMessage("x ");
+        notification.setTitle("");
+        notification.setMessage("");
         notification.setBus(bus); 
         notification.setTimeToSend(timeToSend);
+        notification.setScheduleTime(arriveTime);
         notification.setUser(user);
         notification.setBusStop(busStop);
         notification.setIsActive(false);
@@ -77,7 +84,7 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
-    public List<Notification> setActiveNotification(){
+    public List<Notification> setActiveNotification() {
         List<Notification> notifications = notificationRepository.findByIsActive(false);
 
         if (notifications == null){
@@ -99,8 +106,23 @@ public class NotificationService {
             .filter(notification -> notification.getTimeToSend().isBefore(now) 
                 || notification.getTimeToSend().equals(now))
             .map(notification -> {
-                notification.setIsActive(true);
-                return notification;
+
+                try{
+                    LocalTime scheduleTime = notification.getScheduleTime();
+                    Map<String, Object> ETA_data = busStopETAService.ETAToStop(notification.getBus().getBusId(), notification.getBusStop().getBusStopId());
+                    double eta_seconds = (double) ETA_data.get("eta_seconds");
+
+                    Map<String, Object> compareETA = busDriverService.compareSchedule(scheduleTime, eta_seconds);
+
+                    System.out.println(compareETA.get("status"));
+                    
+                    notification.setIsActive(true);
+                    return notification;
+
+                } catch(ParseException e){
+                    throw new ResourceNotFoundException("Something went wrong !!");
+                }
+
             })
             .collect(Collectors.toList());
 
