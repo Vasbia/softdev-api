@@ -44,4 +44,8 @@ public class Notification {
 
     @Column(name = "time_to_send")
     private LocalTime timeToSend;
+
+    @Column(name = "schedule_time")
+    private LocalTime scheduleTime;
+    
 }

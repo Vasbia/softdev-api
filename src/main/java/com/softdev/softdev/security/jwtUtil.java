@@ -1,7 +1,5 @@
 package com.softdev.softdev.security;
 import java.nio.charset.StandardCharsets;
-import java.security.Signature;
-import java.time.format.SignStyle;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
@@ -12,9 +10,9 @@ import javax.crypto.spec.SecretKeySpec;
 
 import com.softdev.softdev.exception.ResourceNotFoundException;
 
-import io.github.cdimascio.dotenv.Dotenv;
-
 public class jwtUtil {
+
+    private static final String SecretKey = "1t}fZS06a?hhu!$BrXxCV=-jpK7zmK";
 
     public static String generateToken(Map<String, Object> payload, String secret) {
         try {
@@ -40,8 +38,8 @@ public class jwtUtil {
     // HMAC SHA256 signing
     private static String hmacSha256(String data, String secret) throws Exception {
         Mac mac = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        mac.init(secretKey);
+        SecretKeySpec secret_Key = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        mac.init(secret_Key);
         byte[] hash = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
         return base64UrlEncode(hash);
     }
@@ -79,9 +77,7 @@ public class jwtUtil {
     }
 
     public static boolean verifyJwt(String token) {
-        Dotenv env = Dotenv.load();
-
-        String secret = env.get("JWT_SECRET_KEY");
+        
         try {
             // Split into 3 parts: header.payload.signature
             String[] parts = token.split("\\.");
@@ -102,7 +98,7 @@ public class jwtUtil {
 
             // Recalculate signature using secret key
             String data = header + "." + payload;
-            String expectedSignature = hmacSha256(data, secret);
+            String expectedSignature = hmacSha256(data, SecretKey);
 
             // Compare constant-time to prevent timing attacks
             return expectedSignature.equals(signature);
