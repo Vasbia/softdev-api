@@ -8,14 +8,11 @@ import java.util.stream.Collectors;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import com.softdev.softdev.exception.ResourceNotFoundException;
 
 public class jwtUtil {
 
-    @Value("${jwt.secret_key}")
-    private static String secretKey;
+    private static final String SecretKey = "1t}fZS06a?hhu!$BrXxCV=-jpK7zmK";
 
     public static String generateToken(Map<String, Object> payload, String secret) {
         try {
@@ -101,7 +98,7 @@ public class jwtUtil {
 
             // Recalculate signature using secret key
             String data = header + "." + payload;
-            String expectedSignature = hmacSha256(data, secretKey);
+            String expectedSignature = hmacSha256(data, SecretKey);
 
             // Compare constant-time to prevent timing attacks
             return expectedSignature.equals(signature);

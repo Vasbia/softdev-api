@@ -5,7 +5,6 @@ import java.security.SecureRandom;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.softdev.softdev.dto.User.UserDTO;
@@ -24,11 +23,10 @@ public class AuthService {
     @Autowired
     UserService userService;
 
-    @Value("${jwt.key_admin}")
-    private String keyAdmin;
 
-    @Value("${jwt.secret_key}")
-    private String secretKey;
+    private final String keyAdmin = "+=h+]aq^)Vd;Eh4mr]f^vGgmgh<k-7";
+
+    private final String secretKey = "1t}fZS06a?hhu!$BrXxCV=-jpK7zmK";
 
 
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
