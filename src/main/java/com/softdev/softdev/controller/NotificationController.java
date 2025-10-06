@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -73,6 +74,22 @@ public class NotificationController {
     @GetMapping("/countNotification")
     public Integer countNotification(String token) {
         return notificationService.countActiveNotification(token);
+    }
+
+    @DeleteMapping("/delete/{notificationId}")
+    public ResponseEntity<?> deleteNotification(Long notificationId){
+
+        APIResponseDTO<NotificationDTO> response = new APIResponseDTO<>();
+        response.setMessage(notificationService.deleteNotification(notificationId));
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/deleteAllNotification")
+    public ResponseEntity<?> deleteAllNotification(String token){
+
+        APIResponseDTO<NotificationDTO> response = new APIResponseDTO<>();
+        response.setMessage(notificationService.deleteAllNotification(token));
+        return ResponseEntity.ok(response);
     }
     
     

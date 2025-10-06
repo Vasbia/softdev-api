@@ -20,6 +20,7 @@ import com.softdev.softdev.exception.user.UserNotAuthenticatedException;
 import com.softdev.softdev.repository.NotificationRepository;
 import com.softdev.softdev.service.BusDriverService.DrivingStatus;
 
+import jakarta.transaction.Transactional;
 import net.minidev.json.parser.ParseException;
 
 @Service
@@ -196,6 +197,24 @@ public class NotificationService {
         List<Notification> notifications = notificationRepository.findByUser_UserIdAndIsActive(user.getUserId(), true);
 
         return notifications.size();
+    }
+
+
+    public String deleteNotification(Long notificationId){
+        Notification notification = notificationRepository.findById(notificationId)
+            .orElseThrow(() -> new ResourceNotFoundException("Notification Not found"));
+
+        notificationRepository.delete(notification);
+
+        return String.format("Notification has been deleted");
+    }
+
+
+    @Transactional
+    public String deleteAllNotification(String token) {
+        User user = userService.getCurrentUser(token);
+        long deleted = notificationRepository.deleteByUserAndIsActiveTrue(user);
+        return String.format("Deleted %d active notifications.", deleted);
     }
 
 
