@@ -1,6 +1,8 @@
 package com.softdev.softdev.service;
 
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,6 +18,7 @@ import com.softdev.softdev.entity.User;
 import com.softdev.softdev.exception.ResourceNotFoundException;
 import com.softdev.softdev.exception.user.UserNotAuthenticatedException;
 import com.softdev.softdev.repository.NotificationRepository;
+import com.softdev.softdev.service.BusDriverService.DrivingStatus;
 
 import net.minidev.json.parser.ParseException;
 
@@ -70,9 +73,10 @@ public class NotificationService {
         }
 
         LocalTime timeToSend = arriveTime.minusMinutes(before_minutes);
+        String title = "Tracking message from Bus " + bus_id;
 
         Notification notification = new Notification();
-        notification.setTitle("");
+        notification.setTitle(title);
         notification.setMessage("");
         notification.setBus(bus); 
         notification.setTimeToSend(timeToSend);
@@ -115,6 +119,44 @@ public class NotificationService {
                     Map<String, Object> compareETA = busDriverService.compareSchedule(scheduleTime, eta_seconds);
 
                     System.out.println(compareETA.get("status"));
+                    DrivingStatus status_bus = (DrivingStatus) compareETA.get("status");
+
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+                    
+                    if(status_bus == DrivingStatus.LATE){
+                        if (eta_seconds < 60.0){
+                            long eta_seconds_long = (long) eta_seconds;
+                            String formattedTime = notification.getScheduleTime().plus((Long)eta_seconds_long, ChronoUnit.SECONDS).format(formatter);
+                            
+                            notification.setMessage(String.format("The bus will be delayed by %.1f seconds.", eta_seconds) + "(" + formattedTime + ")");
+                        }else{
+                            double eta_min = eta_seconds / 60.0;
+
+                            long eta_min_long = (long) eta_min;
+                            String formattedTime = notification.getScheduleTime().plus((Long)eta_min_long, ChronoUnit.MINUTES).format(formatter);
+                            
+                            notification.setMessage(String.format("The bus will be delayed by %.1f minutes.", eta_min)+ "(" + formattedTime + ")");
+                        }
+                    }
+                    else if(status_bus == DrivingStatus.EARLY){
+                        if (eta_seconds < 60.0){
+                            long eta_seconds_long = (long) eta_seconds;
+                            String formattedTime = notification.getScheduleTime().minus((Long)eta_seconds_long, ChronoUnit.SECONDS).format(formatter);
+
+                            notification.setMessage(String.format("The bus will arrive %.1f seconds later than scheduled.", eta_seconds) + "(" + formattedTime + ")");
+                        }else{
+                            double eta_min = eta_seconds / 60.0;
+
+                            long eta_min_long = (long) eta_min;
+                            String formattedTime = notification.getScheduleTime().minus((Long)eta_min_long, ChronoUnit.MINUTES).format(formatter);
+                            
+                            notification.setMessage(String.format("The bus will arrive %.1f minutes later than scheduled.", eta_min)+ "(" + formattedTime + ")") ;
+                        }
+
+                    }else{ //OMTIME
+                        String formattedTime = notification.getScheduleTime().format(formatter);
+                        notification.setMessage(("The bus will arrive at "+ formattedTime + "."));
+                    }
                     
                     notification.setIsActive(true);
                     return notification;
