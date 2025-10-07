@@ -64,11 +64,11 @@ public class BusService {
             throw new RuntimeException("No active bus schedule found for busId: " + busId + " at current time");
         }
 
+        return currentRound;
     }
 
     public Map<String, Object> showBusPosition(Long busId) {
         Double latitude;
-        return currentRound;
         Double longitude;
         boolean isStopped;
 
@@ -178,8 +178,8 @@ public class BusService {
                 );
             }
         }
-        
-       // return Map.of();
-      throw new ResourceNotFoundException("No Bus active at current time")
+
+        throw new ResourceNotFoundException("No Bus active at current time");
+        // return Map.of();
     }
 }
