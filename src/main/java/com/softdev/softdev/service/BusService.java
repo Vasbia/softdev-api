@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.softdev.softdev.dto.bus.BusDTO;
 import com.softdev.softdev.entity.Bus;
 import com.softdev.softdev.entity.BusSchedule;
 import com.softdev.softdev.entity.BusStop;
@@ -181,5 +182,49 @@ public class BusService {
 
         throw new ResourceNotFoundException("No Bus active at current time");
         // return Map.of();
+    }
+
+        public boolean isActive(Long busId){
+        List<BusSchedule> busSchedules = busScheduleService.findBusScheduleByBusId(busId);
+        if (busSchedules.isEmpty()) {
+            return false;
+        }
+
+        LocalTime start = null;
+        for (BusSchedule schedule : busSchedules) {
+            if (schedule.getScheduleOrder() == 1) {
+                for (BusSchedule sch : busSchedules) {
+                    if (sch.getRound() == schedule.getRound() && sch.getScheduleOrder() == 8) {
+                        if ((schedule.getArriveTime().isBefore(LocalTime.now()) || schedule.getArriveTime().equals(LocalTime.now()))
+                                && (sch.getArriveTime().isAfter(LocalTime.now()) || sch.getArriveTime().equals(LocalTime.now()))) {
+                            start = schedule.getArriveTime();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (start == null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public List<Bus> findAllByRouteId(Long routeId) {
+        return busRepository.findAllByRouteRouteId(routeId);
+    }
+
+    public BusDTO toDto(Bus bus) {
+        BusDTO dto = new BusDTO();
+        dto.setBusId(bus.getBusId());
+        dto.setType(bus.getType());
+        dto.setRouteId(bus.getRoute().getRouteId());
+        return dto;
+    }
+
+    public List<BusDTO> toDtos(List<Bus> buses) {
+        return buses.stream().map(this::toDto).toList();
     }
 }
