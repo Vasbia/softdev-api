@@ -12,6 +12,7 @@ import com.softdev.softdev.entity.Bus;
 import com.softdev.softdev.entity.BusDriver;
 import com.softdev.softdev.entity.Notification;
 import com.softdev.softdev.entity.User;
+import com.softdev.softdev.exception.ResourceNotFoundException;
 import com.softdev.softdev.repository.BusDriverRepositiory;
 import com.softdev.softdev.repository.NotificationRepository;
 import com.softdev.softdev.repository.UserRepository;
@@ -107,8 +108,11 @@ public class BusDriverService {
 
     @Transactional
     public Integer sendEmergenyNotification(String token) {
-        User driver = userService.getCurrentUser(token);
-        Bus bus = getBusByBusDriver(driver);
+        User user = userService.getCurrentUser(token);
+        Bus bus = getBusByBusDriver(user);
+        if (bus == null){
+            throw new ResourceNotFoundException("Cannot find Bus by this User");
+        }
 
         List<Notification> byBus = notificationRepository.findByBus(bus); // one query
         LocalTime now = LocalTime.now();
