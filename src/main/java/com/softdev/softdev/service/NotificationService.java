@@ -180,6 +180,7 @@ public class NotificationService {
 
     public NotificationDTO toDto(Notification notification) {
         NotificationDTO dto = new NotificationDTO();
+        dto.setNotification_id(notification.getNotificationId());
         dto.setTitle(notification.getTitle());
         dto.setMessage(notification.getMessage());
         dto.setBus_id(notification.getBus() != null ? notification.getBus().getBusId() : null);
