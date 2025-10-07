@@ -210,7 +210,6 @@ public class NotificationService {
         return String.format("Notification has been deleted");
     }
 
-
     @Transactional
     public String deleteAllNotification(String token) {
         User user = userService.getCurrentUser(token);
