@@ -1,15 +1,22 @@
 package com.softdev.softdev.service;
 
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.softdev.softdev.dto.bus_driver.BusStatusDTO;
+import com.softdev.softdev.entity.Bus;
+import com.softdev.softdev.entity.BusDriver;
+import com.softdev.softdev.entity.Notification;
+import com.softdev.softdev.entity.User;
 import com.softdev.softdev.repository.BusDriverRepositiory;
+import com.softdev.softdev.repository.NotificationRepository;
 import com.softdev.softdev.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
 import net.minidev.json.parser.ParseException;
 
 @Service
@@ -18,7 +25,13 @@ public class BusDriverService {
     private UserRepository userRepository;
 
     @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
     private BusService busService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private BusScheduleService busScheduleService;
@@ -28,6 +41,7 @@ public class BusDriverService {
 
     @Autowired
     private BusDriverRepositiory busDriverRepositiory;
+
 
     public  boolean isBusDriver(Long userId) {
         return userRepository.findById(userId).map(user -> "BUS_DRIVER".equals(user.getRole())).orElse(false);
@@ -83,6 +97,45 @@ public class BusDriverService {
             );
         }
     }
+
+    public Bus getBusByBusDriver(User user){
+        Long userId = user.getUserId();
+        BusDriver busDriver = busDriverRepositiory.findByUserId(userId);
+        
+        return busService.getBusById(busDriver.getBusId());
+    }
+
+    @Transactional
+    public Integer sendEmergenyNotification(String token) {
+        User driver = userService.getCurrentUser(token);
+        Bus bus = getBusByBusDriver(driver);
+
+        List<Notification> byBus = notificationRepository.findByBus(bus); // one query
+        LocalTime now = LocalTime.now();
+
+        List<Notification> emergencies = byBus.stream()
+            .filter(n -> Boolean.FALSE.equals(n.getIsActive())
+                || (now.isBefore(n.getScheduleTime()) && now.isAfter(n.getTimeToSend())))
+            .map(n -> {
+                Notification em = new Notification();
+                em.setTitle("Emergency Notification from Bus " + bus.getBusId());
+                em.setMessage("Sorry, the bus cannot operate at the moment due to an emergency.");
+                em.setBus(bus);
+                em.setTimeToSend(now);
+                em.setScheduleTime(now);
+                em.setUser(n.getUser());      
+                em.setBusStop(n.getBusStop());          
+                em.setIsActive(true);
+                return em;
+            })
+            .toList();
+
+        if (emergencies.isEmpty()) return 0;
+
+        notificationRepository.saveAll(emergencies);
+        return emergencies.size();
+    }
+
 
     public BusStatusDTO toDto(Map<String, Object> status) {
         BusStatusDTO dto = new BusStatusDTO();

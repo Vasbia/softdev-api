@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,6 +17,7 @@ import com.softdev.softdev.service.BusDriverService;
 import com.softdev.softdev.service.BusScheduleService;
 
 import net.minidev.json.parser.ParseException;
+
 
 
 @RestController
@@ -40,4 +42,10 @@ public class BusDriverController {
 
         return busDriverService.toDto(status);
     }
+
+    @PostMapping("/emergency")
+    public String sendEmergencyNotification(String token) {
+        return String.format("Send %d Emergency Notification", busDriverService.sendEmergenyNotification(token));
+    }
+    
 }

@@ -15,7 +15,7 @@ public class CreateNotificationDTO {
     private Long bus_stop_id;   
 
     @NotNull(message="time to notify is required")
-    private Long timeToNotify;
+    private Long time_to_notify;
 
     @NotNull(message = "token is required")
     private String token;
