@@ -50,6 +50,7 @@ public class PlaceService {
     public PlaceDTO toDto(Place place) {
         PlaceDTO dto = new PlaceDTO();
         
+        dto.setPlace_id(place.getPlaceId());
         dto.setName(place.getName());
         dto.setImage(place.getImage());
         dto.setLatitude(place.getGeoLocation().getLatitude());

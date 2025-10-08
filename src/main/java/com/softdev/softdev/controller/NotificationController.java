@@ -43,7 +43,7 @@ public class NotificationController {
             createNotificationDTO.getBus_stop_id(),
             createNotificationDTO.getBus_id(),
             createNotificationDTO.getToken(),
-            createNotificationDTO.getTimeToNotify()
+            createNotificationDTO.getTime_to_notify()
         );
 
         NotificationDTO notificationDTO = notificationService.toDto(notification);
