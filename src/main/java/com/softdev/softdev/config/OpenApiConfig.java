@@ -2,7 +2,6 @@ package com.softdev.softdev.config;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,7 +12,7 @@ import io.swagger.v3.oas.models.servers.Server;
 public class OpenApiConfig {
     @Bean
   public OpenAPI openAPI() {
-    return new OpenAPI();
-        // .servers(List.of(new Server().url("https://api-vasbia.code4.dad")));
+    return new OpenAPI()
+        .servers(List.of(new Server().url("https://api-vasbia.code4.dad")));
   }
 }
