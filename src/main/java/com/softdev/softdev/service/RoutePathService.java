@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.softdev.softdev.dto.routepath.RoutePathDTO;
 import com.softdev.softdev.entity.RoutePath;
 import com.softdev.softdev.exception.ResourceNotFoundException;
 import com.softdev.softdev.repository.RoutePathRepository;
@@ -43,4 +44,21 @@ public class RoutePathService {
 
         return cumulative;
     } 
+
+    public RoutePathDTO toDto(RoutePath routePath) {
+        RoutePathDTO dto = new RoutePathDTO();
+        dto.setLatitude(routePath.getGeoLocation().getLatitude());
+        dto.setLongitude(routePath.getGeoLocation().getLongitude());
+        // dto.setPathOrder(routePath.getPointOrder());
+        dto.setRouteId(routePath.getRoute().getRouteId());
+        return dto;
+    }
+
+    public List<RoutePathDTO> toDtos(List<RoutePath> routePaths) {
+        List<RoutePathDTO> dtoList = new ArrayList<>();
+        for (RoutePath rp : routePaths) {
+            dtoList.add(toDto(rp));
+        }
+        return dtoList;
+    }
 }
