@@ -34,7 +34,7 @@ public class NotificationController {
     private NotificationService notificationService;
 
     @PostMapping("/TrackBusStop")
-    public ResponseEntity<?> createNotification(
+    public ResponseEntity<?> TrackBusStop(
         @Valid @ModelAttribute CreateNotificationDTO createNotificationDTO
     )
     {
@@ -42,8 +42,9 @@ public class NotificationController {
         Notification notification = notificationService.CreateNotificationTrackBusStop(
             createNotificationDTO.getBus_stop_id(),
             createNotificationDTO.getBus_id(),
-            createNotificationDTO.getToken(),
-            createNotificationDTO.getTime_to_notify()
+            createNotificationDTO.getTime_to_notify(),
+            createNotificationDTO.getSchedule_time(),
+            createNotificationDTO.getToken()
         );
 
         NotificationDTO notificationDTO = notificationService.toDto(notification);

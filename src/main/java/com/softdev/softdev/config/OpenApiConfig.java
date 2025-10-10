@@ -12,7 +12,7 @@ import io.swagger.v3.oas.models.servers.Server;
 public class OpenApiConfig {
     @Bean
   public OpenAPI openAPI() {
-    return new OpenAPI()
-        .servers(List.of(new Server().url("https://api-vasbia.code4.dad")));
+    return new OpenAPI();
+        // .servers(List.of(new Server().url("https://api-vasbia.code4.dad")));
   }
 }

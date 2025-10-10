@@ -37,10 +37,6 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
-
-    @Autowired
-    private BusScheduleService busScheduleService;
-
     @Autowired
     private BusStopService busStopService;
 
@@ -48,7 +44,7 @@ public class NotificationService {
     private BusDriverService busDriverService;
 
 
-    public Notification CreateNotificationTrackBusStop( Long bus_stop_id ,Long bus_id, String token, Long before_minutes ) {
+    public Notification CreateNotificationTrackBusStop( Long bus_stop_id ,Long bus_id, LocalTime time_to_send, LocalTime schedule_time, String token ) {
 
         Bus bus = busService.getBusById(bus_id);
         if (bus == null) {
@@ -63,25 +59,14 @@ public class NotificationService {
             throw new ResourceNotFoundException("BusStop not found for busStopId: " + bus_stop_id);
         }
 
-        Integer currentBusRound = busService.getCurrentRound(bus_id);
-        // Integer currentBusRound = 2;
-
-        LocalTime arriveTime = busScheduleService.findBusScheduleTime(bus_id, bus_stop_id, currentBusRound);
-        // LocalTime arriveTime = LocalTime.now().plusMinutes(10);
-
-        if (arriveTime == null) {
-            throw new ResourceNotFoundException("Arrive time not found for busId: " + bus_id  + ", busStopId: " + bus_stop_id + ", round: " + currentBusRound);
-        }
-
-        LocalTime timeToSend = arriveTime.minusMinutes(before_minutes);
         String title = "Tracking message from Bus " + bus_id;
 
         Notification notification = new Notification();
         notification.setTitle(title);
         notification.setMessage("");
         notification.setBus(bus); 
-        notification.setTimeToSend(timeToSend);
-        notification.setScheduleTime(arriveTime);
+        notification.setTimeToSend(time_to_send);
+        notification.setScheduleTime(schedule_time);
         notification.setUser(user);
         notification.setBusStop(busStop);
         notification.setIsActive(false);
