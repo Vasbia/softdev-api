@@ -13,4 +13,5 @@ public class NotificationDTO {
     private long bus_id ;
     private long bus_stop_id;   
     private LocalTime time ;
+    private Boolean is_read;
 }

@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.softdev.softdev.dto.APIResponseDTO;
 import com.softdev.softdev.dto.notification.CreateNotificationDTO;
 import com.softdev.softdev.dto.notification.NotificationDTO;
+import com.softdev.softdev.dto.notification.ReadNotificationDTO;
 import com.softdev.softdev.entity.Notification;
 import com.softdev.softdev.service.NotificationService;
 import com.softdev.softdev.service.UserService;
 
 import jakarta.validation.Valid;
+
 
 
 
@@ -73,8 +75,8 @@ public class NotificationController {
     }
     
     @GetMapping("/countNotification")
-    public Integer countNotification(String token) {
-        return notificationService.countActiveNotification(token);
+    public Integer countUnReadNotification(String token) {
+        return notificationService.countUnReadNotification(token);
     }
 
     @DeleteMapping("/delete/{notificationId}")
@@ -85,12 +87,26 @@ public class NotificationController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/deleteAllNotification")
+    @DeleteMapping("/deleteAllReadNotification")
     public ResponseEntity<?> deleteAllNotification(String token){
 
         APIResponseDTO<NotificationDTO> response = new APIResponseDTO<>();
-        response.setMessage(notificationService.deleteAllNotification(token));
+        response.setMessage(notificationService.deleteAllReadNotification(token));
         return ResponseEntity.ok(response);
+    }
+    
+
+    @PostMapping("/read")
+    public ResponseEntity<?> readNotification(@Valid @ModelAttribute ReadNotificationDTO readNotificationDTO) {
+        
+
+        Notification notification = notificationService.readNotification(readNotificationDTO.getNotification_id(), readNotificationDTO.getToken());
+
+        APIResponseDTO<NotificationDTO> response = new APIResponseDTO<>();
+        response.setMessage(String.format("read notification success"));
+        response.setData(notificationService.toDto(notification));
+        return ResponseEntity.ok(response);
+
     }
     
     

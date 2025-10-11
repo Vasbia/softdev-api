@@ -69,6 +69,7 @@ public class NotificationService {
         notification.setScheduleTime(schedule_time);
         notification.setUser(user);
         notification.setBusStop(busStop);
+        notification.setIsRead(false);
         notification.setIsActive(false);
 
         return notificationRepository.save(notification);
@@ -160,7 +161,7 @@ public class NotificationService {
 
     public List<Notification> getNotifications(String token) {
         User user = userService.getCurrentUser(token);
-        return notificationRepository.findByUser_UserIdAndIsActive(user.getUserId(), true);
+        return notificationRepository.findByUserAndIsActiveTrue(user);
     }
 
     public NotificationDTO toDto(Notification notification) {
@@ -178,9 +179,13 @@ public class NotificationService {
         return notifications.stream().map(this::toDto).toList();
     }
 
-    public Integer countActiveNotification(String token) {
+    public Integer countUnReadNotification(String token) {
         User user = userService.getCurrentUser(token);
-        List<Notification> notifications = notificationRepository.findByUser_UserIdAndIsActive(user.getUserId(), true);
+        List<Notification> notifications = notificationRepository.findByUserAndIsActiveTrueAndIsReadFalse(user);
+
+        if (notifications == null){
+            return 0;
+        }
 
         return notifications.size();
     }
@@ -196,10 +201,25 @@ public class NotificationService {
     }
 
     @Transactional
-    public String deleteAllNotification(String token) {
+    public String deleteAllReadNotification(String token) {
         User user = userService.getCurrentUser(token);
-        long deleted = notificationRepository.deleteByUserAndIsActiveTrue(user);
+        long deleted = notificationRepository.deleteByUserAndIsActiveTrueAndIsReadTrue(user);
         return String.format("Deleted %d active notifications.", deleted);
+    }
+
+    public Notification readNotification(Long notification_id ,String token) {
+        Notification notification = notificationRepository.findById(notification_id)
+             .orElseThrow(() -> new ResourceNotFoundException("Notification Not found"));
+
+        User user = userService.getCurrentUser(token);
+
+        if (user != notification.getUser()){
+            throw new UserNotAuthenticatedException("Permission denied");
+        }
+
+        notification.setIsRead(true);
+        
+        return notificationRepository.save(notification);
     }
 
 
