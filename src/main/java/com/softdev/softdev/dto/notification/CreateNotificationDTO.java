@@ -21,12 +21,12 @@ public class CreateNotificationDTO {
 
     @NotNull(message="bus schedule time is required")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
-    @Schema(type = "string", example = "09:00:23", pattern = "^\\d{2}:\\d{2}:\\d{2}$")
+    @Schema(type = "string", example = "09:25:00", pattern = "^\\d{2}:\\d{2}:\\d{2}$")
     private LocalTime schedule_time;
 
     @NotNull(message="time to notify is required")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
-    @Schema(type = "string", example = "09:00:23", pattern = "^\\d{2}:\\d{2}:\\d{2}$")
+    @Schema(type = "string", example = "09:23:00", pattern = "^\\d{2}:\\d{2}:\\d{2}$")
     private LocalTime time_to_notify; 
 
     @NotNull(message = "token is required")
