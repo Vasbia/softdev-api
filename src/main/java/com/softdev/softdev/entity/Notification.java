@@ -48,4 +48,6 @@ public class Notification {
     @Column(name = "schedule_time")
     private LocalTime scheduleTime;
     
-}
+    @Column(name = "isRead")
+    private Boolean isRead;
+} 
