@@ -20,5 +20,5 @@ public interface BusScheduleRepository extends JpaRepository<BusSchedule, Long> 
         @Param("round") Integer round
         );
 
-    Optional<List<BusSchedule>>findByBusStopAndArriveTimeAfter(BusStop busStop, LocalTime arrivTime);
+    Optional<List<BusSchedule>>findByBusStopAndArriveTimeAfterOrderByArriveTimeAsc(BusStop busStop, LocalTime arrivTime);
 }

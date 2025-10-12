@@ -61,7 +61,7 @@ public class BusStopService {
     public BusScheduleOfBusStopDTO getBusArriveTimeSchedule(Long busStopId){
         
         BusStop busStop = getBusStopById(busStopId);
-        List<BusSchedule> busSchedules = busScheduleRepository.findByBusStopAndArriveTimeAfter(busStop, LocalTime.now())
+        List<BusSchedule> busSchedules = busScheduleRepository.findByBusStopAndArriveTimeAfterOrderByArriveTimeAsc(busStop, LocalTime.now())
             .orElseThrow(() -> new ResourceNotFoundException("BusSchedule at current time not found"));
 
         List<Map<String, Object>> listScheduleBus = new ArrayList<>();
