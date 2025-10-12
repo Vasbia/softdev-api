@@ -1,21 +1,30 @@
 package com.softdev.softdev.service;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
+import com.softdev.softdev.dto.busstop.BusScheduleOfBusStopDTO;
 import com.softdev.softdev.dto.busstop.BusStopDTO;
+import com.softdev.softdev.entity.BusSchedule;
 import com.softdev.softdev.entity.BusStop;
 import com.softdev.softdev.entity.RoutePath;
 import com.softdev.softdev.exception.ResourceNotFoundException;
+import com.softdev.softdev.repository.BusScheduleRepository;
 import com.softdev.softdev.repository.BusStopRepository;
 
 @Service
 public class BusStopService {
     @Autowired
     private BusStopRepository busStopRepository;
+
+    @Autowired
+    private BusScheduleRepository busScheduleRepository;
 
     public BusStop getBusStopById(Long busStopId) {
         return busStopRepository.findById(busStopId).orElseThrow(() -> new ResourceNotFoundException("Bus stop not found with id: " + busStopId));
@@ -48,11 +57,38 @@ public class BusStopService {
         return busStopDistances;
     }
 
+
+    public BusScheduleOfBusStopDTO getBusArriveTimeSchedule(Long busStopId){
+        
+        BusStop busStop = getBusStopById(busStopId);
+        List<BusSchedule> busSchedules = busScheduleRepository.findByBusStopAndArriveTimeAfterOrderByArriveTimeAsc(busStop, LocalTime.now())
+            .orElseThrow(() -> new ResourceNotFoundException("BusSchedule at current time not found"));
+
+        List<Map<String, Object>> listScheduleBus = new ArrayList<>();
+        for (BusSchedule schedule : busSchedules) {
+            Map<String, Object> map = Map.of(
+                "busId", schedule.getBus().getBusId(),
+                "arriveTime", schedule.getArriveTime()
+            );
+            listScheduleBus.add(map);
+        }        
+
+        BusScheduleOfBusStopDTO busScheduleOfBusStopDTO = new BusScheduleOfBusStopDTO();
+        busScheduleOfBusStopDTO.setBusStopname(busStop.getName());
+        busScheduleOfBusStopDTO.setBusStopId(busStopId);
+        busScheduleOfBusStopDTO.setBusScheduleData(listScheduleBus);
+
+        return busScheduleOfBusStopDTO;
+    
+    }
+
+
     public BusStopDTO toDto(BusStop busStop) {
         BusStopDTO dto = new BusStopDTO();
         dto.setName(busStop.getName());
         dto.setLatitude(busStop.getGeoLocation().getLatitude());
         dto.setLongitude(busStop.getGeoLocation().getLongitude());
+        dto.setBusStopId(busStop.getBusStopId());
         return dto;
     }
 
