@@ -92,31 +92,28 @@ public class AuthService {
     
     }
 
-    public User createUser(String fname , String lname, String password ,String email, String role , String key ){
+    public User createUser(String fname , String lname, String password ,String email, String role ){
+        
+        if (role.equals("USER") || role.equals("BUS_DRIVER")){
 
-        if (key.equals(keyAdmin)){
-
-            if (role.equals("USER") || role.equals("BUS_DRIVER")){
-
-                if (userRepository.existsByEmail(email)){
-                    throw new UserForBiddenException("Email already exists");
-                }
-
-                String salt = generateSalt();
-                String password_hash_salting = hash(password + salt);
-
-                User user = new User();
-                user.setEmail(email);
-                user.setLname(lname);
-                user.setFname(fname);
-                user.setRole(role);
-                user.setPassword(password_hash_salting);
-                user.setSalt(salt);
-                
-                userRepository.save(user);
-
-                return user;
+            if (userRepository.existsByEmail(email)){
+                throw new UserForBiddenException("Email already exists");
             }
+
+            String salt = generateSalt();
+            String password_hash_salting = hash(password + salt);
+
+            User user = new User();
+            user.setEmail(email);
+            user.setLname(lname);
+            user.setFname(fname);
+            user.setRole(role);
+            user.setPassword(password_hash_salting);
+            user.setSalt(salt);
+            
+            userRepository.save(user);
+
+            return user;
         }
 
         throw new ResourceNotFoundException("Some thing went wrong!");
