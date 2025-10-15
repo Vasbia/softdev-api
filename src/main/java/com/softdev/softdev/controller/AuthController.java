@@ -37,16 +37,14 @@ public class AuthController {
 
     }
 
-    @PostMapping("/createUser")
+    @PostMapping("/register")
     public UserDTO createUser(@Valid @ModelAttribute CreateUserDTO createUserDTO) {
        User user = authService.createUser(
             createUserDTO.getFname(),
             createUserDTO.getLname(),
             createUserDTO.getPassword(),
             createUserDTO.getEmail(),
-            createUserDTO.getRole(),
-            createUserDTO.getKey()
-
+            createUserDTO.getRole()
         );
 
         UserDTO userDTO = authService.toDTO(user);

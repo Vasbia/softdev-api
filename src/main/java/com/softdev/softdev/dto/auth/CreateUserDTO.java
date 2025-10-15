@@ -21,7 +21,4 @@ public class CreateUserDTO {
     @NotNull(message="role is required")
     private String role;
 
-    @NotNull(message="key is required")
-    private String key;
-
 }
