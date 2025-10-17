@@ -8,4 +8,5 @@ public class BusStopDTO {
     private Long busStopId;
     private Double latitude;
     private Double longitude;
+    private Long routeId;
 }

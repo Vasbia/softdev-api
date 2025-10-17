@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import com.softdev.softdev.dto.busstop.BusScheduleOfBusStopDTO;
@@ -33,6 +32,10 @@ public class BusStopService {
     public List<BusStop> findAllByRouteRouteId(Long routeId) {
         return busStopRepository.findAllByRouteRouteId(routeId).orElseThrow(() -> new ResourceNotFoundException("No bus stops found for routeId: " + routeId));
     }
+
+    public List<BusStop> getAllBusStops() {
+        return busStopRepository.findAll();
+    }   
 
     public List<Double> getBusStopDistances(Long routeId, List<RoutePath> routePaths, List<Double> cumulative) {
         List<BusStop> busStops = findAllByRouteRouteId(routeId);
@@ -89,6 +92,7 @@ public class BusStopService {
         dto.setLatitude(busStop.getGeoLocation().getLatitude());
         dto.setLongitude(busStop.getGeoLocation().getLongitude());
         dto.setBusStopId(busStop.getBusStopId());
+        dto.setRouteId(busStop.getRoute().getRouteId());
         return dto;
     }
 
