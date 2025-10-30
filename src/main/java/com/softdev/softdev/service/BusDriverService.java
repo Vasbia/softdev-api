@@ -130,9 +130,6 @@ public class BusDriverService {
                 em.setUser(n.getUser());      
                 em.setBusStop(n.getBusStop());          
                 em.setIsActive(true);
-
-                notificationRepository.delete(n);
-
                 return em;
             })
             .toList();

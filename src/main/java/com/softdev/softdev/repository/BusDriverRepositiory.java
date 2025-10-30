@@ -8,5 +8,6 @@ import com.softdev.softdev.entity.BusDriver;
 @Repository
 public interface BusDriverRepositiory extends JpaRepository<BusDriver, Long> {
     BusDriver findByUserId(Long userId);
+    
 }
 
