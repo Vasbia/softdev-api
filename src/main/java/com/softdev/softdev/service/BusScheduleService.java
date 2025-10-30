@@ -33,9 +33,10 @@ public class BusScheduleService {
         return busSchedules.stream().map(this::toDto).toList();
     }
     public LocalTime findBusScheduleTime(Long busId, Long busStopId, Integer currentRound){
-      BusSchedule busSchedule = busScheduleRepository.findArriveTimeByBus_BusIdAndBusStop_BusStopIdAndRound(busId, busStopId, currentRound)
+        List<BusSchedule> busSchedules = busScheduleRepository.findAllArriveTimeByBus_BusIdAndBusStop_BusStopIdAndRound(busId, busStopId, currentRound)
                 .orElseThrow(() -> new RuntimeException("BusSchedule not found for busId: " + busId + ", busStopId: " + busStopId + ", round: " + currentRound));
-        return busSchedule.getArriveTime();
+
+        return busSchedules.get(0).getArriveTime();
     }
 
 
