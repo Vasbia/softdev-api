@@ -1,5 +1,6 @@
 package com.softdev.softdev.entity;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import jakarta.persistence.Column;
@@ -50,4 +51,7 @@ public class Notification {
     
     @Column(name = "isRead")
     private Boolean isRead;
+
+    @Column(name ="Datetime")
+    private LocalDateTime dateTime;  
 } 
