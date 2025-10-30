@@ -1,5 +1,6 @@
 package com.softdev.softdev.service;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -146,6 +147,7 @@ public class NotificationService {
                     }
                     
                     notification.setIsActive(true);
+                    notification.setDateTime(LocalDateTime.now());
                     return notification;
 
                 } catch(ParseException e){
@@ -172,6 +174,8 @@ public class NotificationService {
         dto.setBus_id(notification.getBus() != null ? notification.getBus().getBusId() : null);
         dto.setBus_stop_id(notification.getBusStop() != null ? notification.getBusStop().getBusStopId() : null);
         dto.setTime(notification.getTimeToSend());
+        dto.setIs_read(notification.getIsRead());
+        dto.setDatetime(notification.getDateTime());
         return dto;
     }
 
