@@ -2,8 +2,11 @@ package com.softdev.softdev.service;
 
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,37 +41,41 @@ public class BusService {
     }
 
 
-    public Integer getCurrentRound(Long busId){
+    public Integer getCurrentRound(Long busId) {
         List<BusSchedule> busSchedules = busScheduleService.findBusScheduleByBusId(busId);
         if (busSchedules.isEmpty()) {
             throw new RuntimeException("No bus schedules found for busId: " + busId);
         }
 
-        LocalTime start = null;
-        Integer currentRound = null;
-        for (BusSchedule schedule : busSchedules) {
-            if (schedule.getScheduleOrder() == 1) {
-                for (BusSchedule sch : busSchedules) {
-                    if (sch.getRound() == schedule.getRound() && sch.getScheduleOrder() == 8) {
-                        if ((schedule.getArriveTime().isBefore(LocalTime.now()) || schedule.getArriveTime().equals(LocalTime.now()))
-                                && (sch.getArriveTime().isAfter(LocalTime.now()) || sch.getArriveTime().equals(LocalTime.now()))) {
-                            start = schedule.getArriveTime();
-                            currentRound = schedule.getRound();
-                            break;
-                        }
-                    }
+        Map<Integer, List<BusSchedule>> schedulesByRound = busSchedules.stream()
+                .collect(Collectors.groupingBy(BusSchedule::getRound));
+
+        LocalTime now = LocalTime.now();
+
+        for (Map.Entry<Integer, List<BusSchedule>> entry : schedulesByRound.entrySet()) {
+            Integer round = entry.getKey();
+            List<BusSchedule> schedules = entry.getValue();
+
+            Optional<BusSchedule> first = schedules.stream()
+                .min(Comparator.comparing(BusSchedule::getScheduleOrder));
+            Optional<BusSchedule> last = schedules.stream()
+                .max(Comparator.comparing(BusSchedule::getScheduleOrder));
+
+            if (first.isPresent() && last.isPresent()) {
+                LocalTime start = first.get().getArriveTime();
+                LocalTime end = last.get().getArriveTime();
+
+                if ((now.equals(start) || now.isAfter(start)) &&
+                    (now.equals(end) || now.isBefore(end))) {
+                    return round;
                 }
             }
         }
 
-        if (start == null) {
-            throw new RuntimeException("No active bus schedule found for busId: " + busId + " at current time");
-        }
-
-        return currentRound;
+        throw new RuntimeException("No active bus schedule found for busId: " + busId + " at current time");
     }
 
-    public Map<String, Object> showBusPosition(Long busId) {
+    public Map<String, Object> showBusPosition_old(Long busId) {
         Double latitude;
         Double longitude;
         boolean isStopped;
@@ -184,32 +191,101 @@ public class BusService {
         // return Map.of();
     }
 
-        public boolean isActive(Long busId){
+    public Map<String, Object> showBusPosition(Long busId) {
+        Bus bus = getBusById(busId);
+        List<RoutePath> routePaths = routePathService.findRoutePathByRouteId(bus.getRoute().getRouteId());
+        List<Double> cumulative = routePathService.getCumulativeDistance(routePaths);
+
         List<BusSchedule> busSchedules = busScheduleService.findBusScheduleByBusId(busId);
         if (busSchedules.isEmpty()) {
-            return false;
+            throw new ResourceNotFoundException("No bus schedules found for busId: " + busId);
         }
 
-        LocalTime start = null;
-        for (BusSchedule schedule : busSchedules) {
-            if (schedule.getScheduleOrder() == 1) {
-                for (BusSchedule sch : busSchedules) {
-                    if (sch.getRound() == schedule.getRound() && sch.getScheduleOrder() == 8) {
-                        if ((schedule.getArriveTime().isBefore(LocalTime.now()) || schedule.getArriveTime().equals(LocalTime.now()))
-                                && (sch.getArriveTime().isAfter(LocalTime.now()) || sch.getArriveTime().equals(LocalTime.now()))) {
-                            start = schedule.getArriveTime();
-                            break;
-                        }
+        Integer currentRound = getCurrentRound(busId);
+        if (currentRound == null) {
+            throw new ResourceNotFoundException("No active round found for busId: " + busId);
+        }
+
+        LocalTime now = LocalTime.now();
+        List<BusSchedule> roundSchedules = busSchedules.stream()
+                .filter(s -> s.getRound().equals(currentRound))
+                .sorted(Comparator.comparing(BusSchedule::getScheduleOrder))
+                .collect(Collectors.toList());
+
+        List<BusStop> busStops = roundSchedules.stream()
+                .map(BusSchedule::getBusStop)
+                .collect(Collectors.toList());
+        List<Double> busStopDistances = busStopService.getBusStopDistancesFromSchedule(busStops, routePaths, cumulative);
+
+        long dwellTimeSeconds = 15;
+
+        for (int i = 0; i < roundSchedules.size() - 1; i++) {
+            BusSchedule curr = roundSchedules.get(i);
+            BusSchedule next = roundSchedules.get(i + 1);
+
+            LocalTime arriveTime = curr.getArriveTime();
+            LocalTime departTime = arriveTime.plusSeconds(dwellTimeSeconds);
+            LocalTime nextArriveTime = next.getArriveTime();
+
+            if ((now.isAfter(arriveTime) || now.equals(arriveTime)) && now.isBefore(departTime)) {
+                BusStop stop = busStops.get(i);
+                return Map.of(
+                    "latitude", stop.getGeoLocation().getLatitude(),
+                    "longitude", stop.getGeoLocation().getLongitude(),
+                    "isStopped", true,
+                    "currentRound", currentRound,
+                    "nextStop", busStops.get(i + 1).getBusStopId()
+                );
+            }
+
+            if ((now.isAfter(departTime) || now.equals(departTime)) && now.isBefore(nextArriveTime)) {
+                double segmentStartDist = busStopDistances.get(i);
+                double segmentEndDist = busStopDistances.get(i + 1);
+                double segmentLength = segmentEndDist - segmentStartDist;
+
+                long travelSeconds = Duration.between(departTime, nextArriveTime).toSeconds();
+                long elapsedSeconds = Duration.between(departTime, now).toSeconds();
+                double progress = (double) elapsedSeconds / travelSeconds;
+                progress = Math.max(0, Math.min(1, progress));
+
+                double traveledDist = segmentStartDist + segmentLength * progress;
+
+                for (int j = 0; j < cumulative.size() - 1; j++) {
+                    double d1 = cumulative.get(j);
+                    double d2 = cumulative.get(j + 1);
+
+                    if (traveledDist >= d1 && traveledDist <= d2) {
+                        double ratio = (traveledDist - d1) / (d2 - d1);
+
+                        double lat = routePaths.get(j).getGeoLocation().getLatitude()
+                                + (routePaths.get(j + 1).getGeoLocation().getLatitude()
+                                - routePaths.get(j).getGeoLocation().getLatitude()) * ratio;
+                        double lon = routePaths.get(j).getGeoLocation().getLongitude()
+                                + (routePaths.get(j + 1).getGeoLocation().getLongitude()
+                                - routePaths.get(j).getGeoLocation().getLongitude()) * ratio;
+
+                        return Map.of(
+                            "latitude", lat,
+                            "longitude", lon,
+                            "isStopped", false,
+                            "currentRound", currentRound,
+                            "nextStop", busStops.get(i + 1).getBusStopId()
+                        );
                     }
                 }
             }
         }
 
-        if (start == null) {
+        throw new ResourceNotFoundException("No Bus active at current time");
+    }
+
+    public boolean isActive(Long busId){
+        try {
+            getCurrentRound(busId);
+            return true;
+        } catch (Exception e) {
             return false;
         }
-
-        return true;
     }
 
     public List<Bus> findAllByRouteId(Long routeId) {

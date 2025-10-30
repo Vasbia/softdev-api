@@ -17,7 +17,7 @@ public class BusScheduleService {
     private BusScheduleRepository busScheduleRepository;
 
     public List<BusSchedule> findBusScheduleByBusId(Long busId) {
-        return busScheduleRepository.findByBusBusIdOrderByRoundAsc(busId).orElseThrow(() -> new ResourceNotFoundException("No bus schedules found for busId: " + busId));
+        return busScheduleRepository.findByBusBusIdOrderByRoundAscScheduleOrderAsc(busId).orElseThrow(() -> new ResourceNotFoundException("No bus schedules found for busId: " + busId));
     }
 
     public BusScheduleDTO toDto(BusSchedule busSchedule) {

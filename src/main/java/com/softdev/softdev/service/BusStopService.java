@@ -60,6 +60,37 @@ public class BusStopService {
         return busStopDistances;
     }
 
+    public List<Double> getBusStopDistancesFromSchedule(List<BusStop> busStops, List<RoutePath> routePaths, List<Double> cumulative) {
+        List<Double> busStopDistances = new ArrayList<>();
+        Boolean firstSkip = false;
+
+        for (BusStop stop : busStops) {
+            if (!firstSkip) {
+                firstSkip = true;
+                busStopDistances.add(0.0);
+                continue;
+            }
+            double stopLat = stop.getGeoLocation().getLatitude();
+            double stopLon = stop.getGeoLocation().getLongitude();
+
+            if (Math.abs(routePaths.get(0).getGeoLocation().getLatitude() - stopLat) <= 0.0001 && Math.abs(routePaths.get(0).getGeoLocation().getLongitude() - stopLon) <= 0.0001) {
+                busStopDistances.add(cumulative.get(cumulative.size() - 1));
+                break;
+            }
+
+            for (int i = 0; i < routePaths.size(); i++) {
+                double pathLat = routePaths.get(i).getGeoLocation().getLatitude();
+                double pathLon = routePaths.get(i).getGeoLocation().getLongitude();
+
+                if (Math.abs(pathLat - stopLat) == 0 && Math.abs(pathLon - stopLon) == 0) {
+                    busStopDistances.add(cumulative.get(i));
+                    break;
+                }
+            }
+        }
+
+        return busStopDistances;
+    }
 
     public BusScheduleOfBusStopDTO getBusArriveTimeSchedule(Long busStopId){
         
