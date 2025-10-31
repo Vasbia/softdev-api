@@ -1,5 +1,6 @@
 package com.softdev.softdev.dto.notification;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import lombok.Data;
@@ -14,4 +15,5 @@ public class NotificationDTO {
     private long bus_stop_id;   
     private LocalTime time ;
     private Boolean is_read;
+    private LocalDateTime datetime;
 }
