@@ -75,7 +75,7 @@ public class BusService {
         throw new RuntimeException("No active bus schedule found for busId: " + busId + " at current time");
     }
 
-    public Map<String, Object> showBusPosition_old(Long busId) {
+    public Map<String, Object> showBusPosition(Long busId) {
         Double latitude;
         Double longitude;
         boolean isStopped;
@@ -191,7 +191,7 @@ public class BusService {
         // return Map.of();
     }
 
-    public Map<String, Object> showBusPosition(Long busId) {
+    public Map<String, Object> showBusPosition_ideal(Long busId) {
         Bus bus = getBusById(busId);
         List<RoutePath> routePaths = routePathService.findRoutePathByRouteId(bus.getRoute().getRouteId());
         List<Double> cumulative = routePathService.getCumulativeDistance(routePaths);
