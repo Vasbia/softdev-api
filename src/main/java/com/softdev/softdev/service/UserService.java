@@ -53,7 +53,8 @@ public class UserService {
         userDTO.setFname(user.getFname());
         userDTO.setLname(user.getLname());
         userDTO.setEmail(user.getEmail());
-        
+        userDTO.setRole(user.getRole());
+
         return userDTO;
     }
 

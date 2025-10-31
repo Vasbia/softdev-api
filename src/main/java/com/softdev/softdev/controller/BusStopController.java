@@ -45,6 +45,13 @@ public class BusStopController {
         return busStopService.toDtos(busStops);
     }
 
+    @GetMapping("/all")
+    public List<BusStopDTO> getAllBusStop() {
+        List<BusStop> busStops = busStopService.getAllBusStops();
+
+        return busStopService.toDtos(busStops);
+    }
+
     @GetMapping("/eta/{busId}/{stopId}")
     public BusStopETADTO getStopETA(@PathVariable Long busId, @PathVariable Long stopId) throws Exception {
         Map<String, Object> busStopETA = busStopETAService.ETAToStop(busId, stopId);
