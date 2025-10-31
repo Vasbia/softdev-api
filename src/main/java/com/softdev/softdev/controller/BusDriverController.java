@@ -2,6 +2,7 @@ package com.softdev.softdev.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,9 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.softdev.softdev.dto.bus_driver.BusScheduleDTO;
 import com.softdev.softdev.dto.bus_driver.BusStatusDTO;
+import com.softdev.softdev.entity.Bus;
 import com.softdev.softdev.entity.BusSchedule;
+import com.softdev.softdev.entity.User;
 import com.softdev.softdev.service.BusDriverService;
 import com.softdev.softdev.service.BusScheduleService;
+import com.softdev.softdev.service.BusService;
+import com.softdev.softdev.service.UserService;
 
 import net.minidev.json.parser.ParseException;
 
@@ -29,6 +34,22 @@ public class BusDriverController {
     @Autowired
     private BusDriverService busDriverService;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private BusService busService;
+
+    @GetMapping("/info")
+    public Map<String, Long> getBusDriverInfo(String token) {
+        User user = userService.getCurrentUser(token);
+        Bus bus = busDriverService.getBusByBusDriver(user);
+        return Map.of(
+            "routeId", bus.getRoute().getRouteId(),
+            "busId", bus.getBusId()
+        );
+    }
+
     @GetMapping("/schedule/{busId}")
     public List<BusScheduleDTO> getBusScheduleById(@PathVariable Long busId) {
         List<BusSchedule> busSchedules = busScheduleService.findBusScheduleByBusId(busId);
@@ -36,9 +57,22 @@ public class BusDriverController {
         return busScheduleService.toDtos(busSchedules);
     }
 
-    @GetMapping("/status/{userId}")
-    public BusStatusDTO getBusStatusById(@PathVariable Long userId) throws ParseException {
-        Map<String, Object> status = busDriverService.getDrivingStatus(userId);
+    @GetMapping("/schedule/token")
+    public List<BusScheduleDTO> getBusScheduleByToken(String token) {
+        User user = userService.getCurrentUser(token);
+        Bus bus = busDriverService.getBusByBusDriver(user);
+        List<BusSchedule> busSchedules = busScheduleService.findBusScheduleByBusId(bus.getBusId());
+        busSchedules = busSchedules.stream()
+                .filter(schedule -> Objects.equals(schedule.getRound(), busService.getCurrentRound(bus.getBusId())))
+                .toList();
+
+        return busScheduleService.toDtos(busSchedules);
+    }
+
+    @GetMapping("/status")
+    public BusStatusDTO getBusStatusById(String token) throws ParseException {
+        User user = userService.getCurrentUser(token);
+        Map<String, Object> status = busDriverService.getDrivingStatus(user.getUserId());
 
         return busDriverService.toDto(status);
     }
