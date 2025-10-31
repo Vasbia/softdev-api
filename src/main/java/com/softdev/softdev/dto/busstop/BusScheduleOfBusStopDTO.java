@@ -14,4 +14,6 @@ public class BusScheduleOfBusStopDTO {
 
     private List<Map<String, Object>> BusScheduleData; 
 
+    private List<Map<String, Object>> BusScheduleDataPast; 
+
 }

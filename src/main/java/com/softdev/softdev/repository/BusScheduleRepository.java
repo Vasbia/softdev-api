@@ -21,4 +21,5 @@ public interface BusScheduleRepository extends JpaRepository<BusSchedule, Long> 
         );
 
     Optional<List<BusSchedule>>findByBusStopAndArriveTimeAfterOrderByArriveTimeAsc(BusStop busStop, LocalTime arrivTime);
+    Optional<List<BusSchedule>>findByBusStopAndArriveTimeBeforeOrderByArriveTimeAsc(BusStop busStop, LocalTime arrivTime);
 }

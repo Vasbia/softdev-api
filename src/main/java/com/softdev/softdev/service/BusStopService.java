@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import com.softdev.softdev.dto.busstop.BusScheduleOfBusStopDTO;
@@ -63,6 +62,9 @@ public class BusStopService {
         BusStop busStop = getBusStopById(busStopId);
         List<BusSchedule> busSchedules = busScheduleRepository.findByBusStopAndArriveTimeAfterOrderByArriveTimeAsc(busStop, LocalTime.now())
             .orElseThrow(() -> new ResourceNotFoundException("BusSchedule at current time not found"));
+    
+        List<BusSchedule> busSchedulesPast = busScheduleRepository.findByBusStopAndArriveTimeBeforeOrderByArriveTimeAsc(busStop, LocalTime.now())
+            .orElseThrow(() -> new ResourceNotFoundException("BusSchedule at current time not found"));
 
         List<Map<String, Object>> listScheduleBus = new ArrayList<>();
         for (BusSchedule schedule : busSchedules) {
@@ -73,10 +75,20 @@ public class BusStopService {
             listScheduleBus.add(map);
         }        
 
+        List<Map<String, Object>> listScheduleBusPast = new ArrayList<>();
+        for (BusSchedule schedule : busSchedulesPast) {
+            Map<String, Object> map = Map.of(
+                "busId", schedule.getBus().getBusId(),
+                "arriveTime", schedule.getArriveTime()
+            );
+            listScheduleBusPast.add(map);
+        }
+
         BusScheduleOfBusStopDTO busScheduleOfBusStopDTO = new BusScheduleOfBusStopDTO();
         busScheduleOfBusStopDTO.setBusStopname(busStop.getName());
         busScheduleOfBusStopDTO.setBusStopId(busStopId);
         busScheduleOfBusStopDTO.setBusScheduleData(listScheduleBus);
+        busScheduleOfBusStopDTO.setBusScheduleDataPast(listScheduleBusPast);
 
         return busScheduleOfBusStopDTO;
     
