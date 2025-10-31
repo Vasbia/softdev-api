@@ -11,4 +11,5 @@ public class BusStatusDTO {
     private boolean isStopped;
     private Enum<DrivingStatus> status;
     private Long difference_seconds;
+    private Object remaining_schedule;
 }

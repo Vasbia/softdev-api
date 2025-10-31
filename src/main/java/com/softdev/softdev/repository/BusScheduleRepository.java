@@ -14,7 +14,7 @@ import com.softdev.softdev.entity.BusStop;
 @Repository
 public interface BusScheduleRepository extends JpaRepository<BusSchedule, Long> {
     Optional<List<BusSchedule>> findByBusBusIdOrderByRoundAscScheduleOrderAsc(Long busId);
-    Optional<BusSchedule> findArriveTimeByBus_BusIdAndBusStop_BusStopIdAndRound(
+    Optional<List<BusSchedule>> findAllArriveTimeByBus_BusIdAndBusStop_BusStopIdAndRound(
         @Param("busId") Long busId,
         @Param("busStopId") Long busStopId,
         @Param("round") Integer round

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.softdev.softdev.dto.bus_driver.BusStatusDTO;
 import com.softdev.softdev.entity.Bus;
 import com.softdev.softdev.entity.BusDriver;
+import com.softdev.softdev.entity.BusSchedule;
 import com.softdev.softdev.entity.Notification;
 import com.softdev.softdev.entity.User;
 import com.softdev.softdev.exception.ResourceNotFoundException;
@@ -50,29 +51,31 @@ public class BusDriverService {
 
     public Map<String, Object> getDrivingStatus(Long userId) throws ParseException{
         if (isBusDriver(userId)){
-            long busid = busDriverRepositiory.findByUserId(userId).getBusId();
+            Long busid = busDriverRepositiory.findByUserId(userId).getBusId();
             Map<String, Object> position = busService.showBusPosition(busid);
-            long nextStopId = (long) position.get("nextStop");
+            Long nextStopId = (Long) position.get("nextStop");
             if (nextStopId == 0){
                 return Map.of(
                     "latitude", position.get("latitude"),
                     "longitude", position.get("longitude"),
                     "isStopped", position.get("isStopped"),
                     "status", DrivingStatus.REST,
-                    "difference_seconds", 0
+                    "difference_seconds", 0L
                 );
             }
-            Map<String, Object> ETAToNextStop = BusStopETAService.ETAToStop(busid, (long) position.get("nextStop"));
-            double ETA = (double) ETAToNextStop.get("eta_seconds");
-            LocalTime schedule_time = busScheduleService.findBusScheduleTime(busid, (long) position.get("nextStop"), (Integer) position.get("currentRound"));
+            Map<String, Object> ETAToNextStop = BusStopETAService.ETAToStop(busid, (Long) position.get("nextStop"));
+            Double ETA = (Double) ETAToNextStop.get("eta_seconds");
+            LocalTime schedule_time = busScheduleService.findBusScheduleTime(busid, (Long) position.get("nextStop"), (Integer) position.get("currentRound"));
             Map<String, Object> status = compareSchedule(schedule_time, ETA);
+            List<BusSchedule> remaining_schedule = busScheduleService.findRemainingSchedules(busid, (Integer) position.get("currentRound"), nextStopId, schedule_time);
             
             return Map.of(
                 "latitude", position.get("latitude"),
                 "longitude", position.get("longitude"),
                 "isStopped", position.get("isStopped"),
                 "status", status.get("status"),
-                "difference_seconds", status.get("difference_seconds")
+                "difference_seconds", status.get("difference_seconds"),
+                "remaining_schedule", busScheduleService.toDtos(remaining_schedule)
             );
         }
         throw new RuntimeException("Unauthorized request");
@@ -94,7 +97,7 @@ public class BusDriverService {
         } else {
             return Map.of(
                 "status", DrivingStatus.ONTIME,
-                "difference_seconds", 0
+                "difference_seconds", 0L
             );
         }
     }
@@ -143,11 +146,12 @@ public class BusDriverService {
 
     public BusStatusDTO toDto(Map<String, Object> status) {
         BusStatusDTO dto = new BusStatusDTO();
-        dto.setLatitude((Double) status.get("latitude"));
-        dto.setLongitude((Double) status.get("longitude"));
+        dto.setLatitude(((Number) status.get("latitude")).doubleValue());
+        dto.setLongitude(((Number) status.get("longitude")).doubleValue());
         dto.setStopped((Boolean) status.get("isStopped"));
         dto.setStatus((Enum<DrivingStatus>) status.get("status"));
-        dto.setDifference_seconds((Long) status.get("difference_seconds"));
+        dto.setDifference_seconds(((Number) status.get("difference_seconds")).longValue());
+        dto.setRemaining_schedule((List<BusSchedule>) status.get("remaining_schedule"));
         return dto;
     }
 

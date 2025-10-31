@@ -230,8 +230,8 @@ public class BusService {
             if ((now.isAfter(arriveTime) || now.equals(arriveTime)) && now.isBefore(departTime)) {
                 BusStop stop = busStops.get(i);
                 return Map.of(
-                    "latitude", stop.getGeoLocation().getLatitude(),
-                    "longitude", stop.getGeoLocation().getLongitude(),
+                    "latitude", (double) stop.getGeoLocation().getLatitude(),
+                    "longitude", (double) stop.getGeoLocation().getLongitude(),
                     "isStopped", true,
                     "currentRound", currentRound,
                     "nextStop", busStops.get(i + 1).getBusStopId()
