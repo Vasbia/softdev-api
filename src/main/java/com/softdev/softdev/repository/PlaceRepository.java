@@ -13,4 +13,5 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
     Optional<Place> findById(Long PlaceId);
     Optional<List<Place>> findAllByBusStopRouteRouteId(Long routeId);
     Optional<List<Place>> findAllByBusStopBusStopId(Long busStopId);
+    Optional<List<Place>> findByNameContainingIgnoreCase(String keyword);
 }

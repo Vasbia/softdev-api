@@ -12,4 +12,5 @@ import com.softdev.softdev.entity.BusStop;
 public interface BusStopRepository extends JpaRepository<BusStop, Long> {
     Optional<BusStop> findById(Long BusStopId);
     Optional<List<BusStop>> findAllByRouteRouteId(Long routeId);
+    Optional<List<BusStop>> findByNameContainingIgnoreCase(String keyword);
 }

@@ -280,6 +280,10 @@ public class BusService {
     }
 
     public boolean isActive(Long busId){
+        Bus bus = busRepository.findById(busId).orElseThrow(() -> new ResourceNotFoundException("Bus not found with id: " + busId));
+        if (bus.getActive() == false){
+            return false;
+        }
         try {
             getCurrentRound(busId);
             return true;

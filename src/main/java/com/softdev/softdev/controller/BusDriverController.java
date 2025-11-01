@@ -16,6 +16,7 @@ import com.softdev.softdev.dto.bus_driver.BusStatusDTO;
 import com.softdev.softdev.entity.Bus;
 import com.softdev.softdev.entity.BusSchedule;
 import com.softdev.softdev.entity.User;
+import com.softdev.softdev.repository.BusRepository;
 import com.softdev.softdev.service.BusDriverService;
 import com.softdev.softdev.service.BusScheduleService;
 import com.softdev.softdev.service.BusService;
@@ -39,6 +40,9 @@ public class BusDriverController {
 
     @Autowired
     private BusService busService;
+
+    @Autowired
+    private BusRepository busRepository;
 
     @GetMapping("/info")
     public Map<String, Long> getBusDriverInfo(String token) {
@@ -79,7 +83,26 @@ public class BusDriverController {
 
     @PostMapping("/emergency")
     public String sendEmergencyNotification(String token) {
+        User user = userService.getCurrentUser(token);
+        Bus bus = busDriverService.getBusByBusDriver(user);
+        if (bus.getActive() == false){
+            return "Bus is already inactive.";
+        }
+        bus.setActive(false);
+        busRepository.save(bus);
         return String.format("Send %d Emergency Notification", busDriverService.sendEmergenyNotification(token));
     }
     
+    @PostMapping("/recover")
+    public String recover(String token) {
+        User user = userService.getCurrentUser(token);
+        Bus bus = busDriverService.getBusByBusDriver(user);
+        if (bus.getActive() == true){
+            return "Bus is already active.";
+        }
+        bus.setActive(true);
+        busRepository.save(bus);
+
+        return String.format("recover busid: %d", bus.getBusId());
+    }
 }

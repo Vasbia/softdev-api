@@ -22,6 +22,9 @@ public class Bus {
     @Column(name = "type", nullable = true)
     private String type;
 
+    @Column(name = "active", nullable = true)
+    private Boolean active = true;
+
     @ManyToOne
     @JoinColumn(name = "route_id")
     private Route route;
