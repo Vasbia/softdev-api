@@ -10,5 +10,6 @@ import com.softdev.softdev.entity.RoutePath;
 
 @Repository
 public interface RoutePathRepository extends JpaRepository<RoutePath, Long> {
+    Optional<RoutePath> findByRoutePathId(Long routeId);
     Optional<List<RoutePath>> findAllByRouteRouteId(Long routeId);
 }
