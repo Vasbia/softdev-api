@@ -60,7 +60,7 @@ public class NotificationService {
             throw new ResourceNotFoundException("BusStop not found for busStopId: " + bus_stop_id);
         }
 
-        String title = "Tracking message from Bus " + bus_id;
+        String title = String.format("Tracking message from Bus %d to %s", bus_id, busStop.getName());
 
         Notification notification = new Notification();
         notification.setTitle(title);

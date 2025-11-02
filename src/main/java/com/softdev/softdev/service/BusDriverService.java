@@ -1,5 +1,6 @@
 package com.softdev.softdev.service;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
@@ -133,6 +134,8 @@ public class BusDriverService {
                 em.setUser(n.getUser());      
                 em.setBusStop(n.getBusStop());          
                 em.setIsActive(true);
+                em.setIsRead(false);
+                em.setDateTime(LocalDateTime.now());
 
                 notificationRepository.delete(n);
                 return em;
