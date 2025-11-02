@@ -1,6 +1,8 @@
 package com.softdev.softdev.dto.auth;
 
+
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
@@ -13,7 +15,8 @@ public class CreateUserDTO {
     private String lname;
 
     @NotNull(message="email is required")
-    private String email;
+    @Pattern(regexp="^([\\w]*[\\w\\.]*(?!\\.)@.*)", message="Invalid email format")
+    private String email;   
 
     @NotNull(message="password is required")
     private String password;
