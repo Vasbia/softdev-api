@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.softdev.softdev.dto.place.FindNearByPlaceDTO;
 import com.softdev.softdev.dto.place.PlaceDTO;
+import com.softdev.softdev.dto.place.PlaceWithoutImageDTO;
 import com.softdev.softdev.entity.Place;
 import com.softdev.softdev.service.PlaceService;
 
@@ -32,17 +33,17 @@ public class PlaceController {
     }
 
     @GetMapping("route/{routeId}")
-    public List<PlaceDTO> getPlaceByRouteId(@PathVariable Long routeId) {
+    public List<PlaceWithoutImageDTO> getPlaceByRouteId(@PathVariable Long routeId) {
         List<Place> places = placeService.getPlaceByRouteId(routeId);
 
-        return placeService.toDtos(places);
+        return placeService.toDtosForPlaceWithoutImage(places);
     } 
 
     @GetMapping("stop/{stopId}")
-    public List<PlaceDTO> getPlaceByStopId(@PathVariable Long stopId) {
+    public List<PlaceWithoutImageDTO> getPlaceByStopId(@PathVariable Long stopId) {
         List<Place> places = placeService.getPlaceByStopId(stopId);
 
-        return placeService.toDtos(places);
+        return placeService.toDtosForPlaceWithoutImage(places);
     }
 
     @PostMapping("/findNearByPlace")
